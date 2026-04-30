@@ -84,10 +84,14 @@ async function deleteProjectAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
+  const now = new Date().toISOString()
+  // Cascade soft-delete: project + its tasks
+  await supabase.from('projects').update({ deleted_at: now }).eq('id', id)
   await supabase
-    .from('projects')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+    .from('tasks')
+    .update({ deleted_at: now })
+    .eq('project_id', id)
+    .is('deleted_at', null)
 
   revalidateAggregates()
   redirect('/projects')

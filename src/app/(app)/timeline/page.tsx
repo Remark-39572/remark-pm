@@ -35,15 +35,29 @@ async function updateTaskDatesAction(
 export default async function GlobalTimelinePage() {
   const supabase = await createClient()
 
-  const { data: tasks } = await supabase
+  const { data: tasksRaw } = await supabase
     .from('tasks')
     .select(
-      'id, activity, start_date, due_date, completed, priority, project:projects(id, name, client:clients(id, name)), task_assignees(person:people(id, name, email, avatar_url))',
+      'id, activity, start_date, due_date, completed, priority, project:projects(id, name, deleted_at, client:clients(id, name, deleted_at)), task_assignees(person:people(id, name, email, avatar_url))',
     )
     .is('deleted_at', null)
     .not('start_date', 'is', null)
     .not('due_date', 'is', null)
     .order('created_at', { ascending: true })
+
+  // Filter out tasks whose parent project or client has been soft-deleted
+  // (admin/owner accounts can read deleted rows via RLS, so we filter in code)
+  const tasks = (tasksRaw ?? []).filter((t) => {
+    const project = Array.isArray(t.project) ? t.project[0] : t.project
+    if (!project || project.deleted_at) return false
+    const client = project.client
+      ? Array.isArray(project.client)
+        ? project.client[0]
+        : project.client
+      : null
+    if (client?.deleted_at) return false
+    return true
+  })
 
   const { data: people } = await supabase
     .from('people')

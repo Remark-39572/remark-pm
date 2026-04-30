@@ -58,10 +58,23 @@ async function deleteClientAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
-  await supabase
-    .from('clients')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+  const now = new Date().toISOString()
+  // Cascade soft-delete: client + its projects + their tasks
+  await supabase.from('clients').update({ deleted_at: now }).eq('id', id)
+  const { data: childProjects } = await supabase
+    .from('projects')
+    .update({ deleted_at: now })
+    .eq('client_id', id)
+    .is('deleted_at', null)
+    .select('id')
+  const projectIds = (childProjects ?? []).map((p) => p.id as string)
+  if (projectIds.length > 0) {
+    await supabase
+      .from('tasks')
+      .update({ deleted_at: now })
+      .in('project_id', projectIds)
+      .is('deleted_at', null)
+  }
 
   revalidatePath('/clients')
   revalidateAggregates()

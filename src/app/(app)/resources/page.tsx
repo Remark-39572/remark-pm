@@ -37,10 +37,10 @@ export default async function ResourcesPage({
     .is('deleted_at', null)
     .order('name', { ascending: true, nullsFirst: false })
 
-  const { data: tasks } = await supabase
+  const { data: tasksRaw } = await supabase
     .from('tasks')
     .select(
-      'id, activity, start_date, due_date, completed, project:projects(id, name, client:clients(name)), task_assignees(person_id)',
+      'id, activity, start_date, due_date, completed, project:projects(id, name, deleted_at, client:clients(name, deleted_at)), task_assignees(person_id)',
     )
     .is('deleted_at', null)
     .not('start_date', 'is', null)
@@ -48,9 +48,19 @@ export default async function ResourcesPage({
     .lte('start_date', endISO)
     .gte('due_date', startISO)
 
-  const filteredTasks = (tasks ?? []).filter(
-    (t) => showCompleted || !t.completed,
-  )
+  const filteredTasks = (tasksRaw ?? [])
+    .filter((t) => {
+      const project = Array.isArray(t.project) ? t.project[0] : t.project
+      if (!project || project.deleted_at) return false
+      const client = project.client
+        ? Array.isArray(project.client)
+          ? project.client[0]
+          : project.client
+        : null
+      if (client?.deleted_at) return false
+      return true
+    })
+    .filter((t) => showCompleted || !t.completed)
 
   type TaskRow = (typeof filteredTasks)[number]
 
