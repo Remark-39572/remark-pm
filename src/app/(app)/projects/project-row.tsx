@@ -17,9 +17,6 @@ type Props = {
 
 export default function ProjectRow({ project }: Props) {
   const router = useRouter()
-  const client = Array.isArray(project.client)
-    ? project.client[0]
-    : project.client
 
   return (
     <tr
@@ -30,7 +27,6 @@ export default function ProjectRow({ project }: Props) {
         {project.code ?? '—'}
       </td>
       <td className="px-5 py-4 font-medium text-slate-900">{project.name}</td>
-      <td className="px-5 py-4 text-slate-700">{client?.name ?? '—'}</td>
       <td className="px-5 py-4">
         <StatusBadge status={project.status} />
       </td>

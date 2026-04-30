@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import ProjectRow from './project-row'
@@ -10,6 +11,24 @@ export default async function ProjectsPage() {
     .select('*, client:clients(*)')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
+
+  // Group by client and sort client names A-Z
+  type ProjectItem = NonNullable<typeof projects>[number]
+  const groups = new Map<string, { clientName: string; rows: ProjectItem[] }>()
+  for (const p of projects ?? []) {
+    const client = Array.isArray(p.client) ? p.client[0] : p.client
+    const key = (client?.id as string | undefined) ?? '__no_client__'
+    const name = (client?.name as string | undefined) ?? 'No client'
+    const entry: { clientName: string; rows: ProjectItem[] } =
+      groups.get(key) ?? { clientName: name, rows: [] }
+    entry.rows.push(p)
+    groups.set(key, entry)
+  }
+  const sortedGroups = Array.from(groups.entries()).sort((a, b) =>
+    a[1].clientName.localeCompare(b[1].clientName, undefined, {
+      sensitivity: 'base',
+    }),
+  )
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -37,14 +56,25 @@ export default async function ProjectsPage() {
               <tr>
                 <th className="px-5 py-3 font-medium">Code</th>
                 <th className="px-5 py-3 font-medium">Project</th>
-                <th className="px-5 py-3 font-medium">Client</th>
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium">Dates</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {projects.map((project) => (
-                <ProjectRow key={project.id} project={project} />
+              {sortedGroups.map(([clientId, group]) => (
+                <Fragment key={clientId}>
+                  <tr className="bg-slate-100">
+                    <td
+                      colSpan={4}
+                      className="px-5 py-2 text-xs font-bold uppercase tracking-wide text-slate-700"
+                    >
+                      {group.clientName}
+                    </td>
+                  </tr>
+                  {group.rows.map((project) => (
+                    <ProjectRow key={project.id} project={project} />
+                  ))}
+                </Fragment>
               ))}
             </tbody>
           </table>
