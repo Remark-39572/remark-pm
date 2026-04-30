@@ -15,20 +15,63 @@ async function restoreAction(formData: FormData) {
   if (!id || !type) return
 
   const supabase = await createClient()
-  const table = tableFor(type)
-  await supabase.from(table).update({ deleted_at: null }).eq('id', id)
-  revalidatePath('/trash')
-  if (type === 'project') revalidatePath('/projects')
-  if (type === 'client') revalidatePath('/clients')
-  if (type === 'person') revalidatePath('/people')
+
+  // Restore the target row first
+  await supabase
+    .from(tableFor(type))
+    .update({ deleted_at: null })
+    .eq('id', id)
+
+  // Cascade upward: if the parent is still soft-deleted, restore it too
+  // (otherwise the restored row would be invisible on aggregate views)
   if (type === 'task') {
-    const { data } = await supabase
+    const { data: task } = await supabase
       .from('tasks')
       .select('project_id')
       .eq('id', id)
       .maybeSingle()
-    if (data?.project_id) revalidatePath(`/projects/${data.project_id}`)
+    if (task?.project_id) {
+      await supabase
+        .from('projects')
+        .update({ deleted_at: null })
+        .eq('id', task.project_id)
+        .not('deleted_at', 'is', null)
+      // Also check the project's client
+      const { data: project } = await supabase
+        .from('projects')
+        .select('client_id')
+        .eq('id', task.project_id)
+        .maybeSingle()
+      if (project?.client_id) {
+        await supabase
+          .from('clients')
+          .update({ deleted_at: null })
+          .eq('id', project.client_id)
+          .not('deleted_at', 'is', null)
+      }
+      revalidatePath(`/projects/${task.project_id}`)
+    }
+  } else if (type === 'project') {
+    const { data: project } = await supabase
+      .from('projects')
+      .select('client_id')
+      .eq('id', id)
+      .maybeSingle()
+    if (project?.client_id) {
+      await supabase
+        .from('clients')
+        .update({ deleted_at: null })
+        .eq('id', project.client_id)
+        .not('deleted_at', 'is', null)
+    }
+    revalidatePath('/projects')
+  } else if (type === 'client') {
+    revalidatePath('/clients')
+  } else if (type === 'person') {
+    revalidatePath('/people')
   }
+
+  revalidatePath('/trash')
   revalidateAggregates()
 }
 
