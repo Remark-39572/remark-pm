@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { revalidateAggregates } from '@/lib/revalidate'
 import ClientRow from './client-row'
 
 async function createClientAction(formData: FormData) {
@@ -15,6 +16,7 @@ async function createClientAction(formData: FormData) {
     .select('id')
     .single()
   revalidatePath('/clients')
+  revalidateAggregates()
   if (data?.id) redirect(`/clients/${data.id}`)
 }
 

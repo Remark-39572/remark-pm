@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidateAggregates } from '@/lib/revalidate'
 import Link from 'next/link'
 import { STATUS_LABELS, type ProjectStatus } from '@/lib/types'
 
@@ -35,6 +36,7 @@ async function createProjectAction(formData: FormData) {
     throw new Error(error.message)
   }
 
+  revalidateAggregates()
   redirect('/projects')
 }
 

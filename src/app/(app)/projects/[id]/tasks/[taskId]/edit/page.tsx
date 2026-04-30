@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
+import { revalidateAggregates } from '@/lib/revalidate'
 import Link from 'next/link'
 import TaskForm from '../../task-form'
 import { type Person, type Priority } from '@/lib/types'
@@ -45,6 +47,8 @@ async function updateTaskAction(formData: FormData) {
       .insert(assignee_ids.map((person_id) => ({ task_id: id, person_id })))
   }
 
+  revalidatePath(`/projects/${project_id}`)
+  revalidateAggregates()
   redirect(`/projects/${project_id}`)
 }
 

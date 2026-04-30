@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
+import { revalidateAggregates } from '@/lib/revalidate'
 import type { Person } from '@/lib/types'
 
 async function updateClientAction(formData: FormData) {
@@ -44,6 +45,7 @@ async function updateClientAction(formData: FormData) {
 
   revalidatePath('/clients')
   revalidatePath(`/clients/${id}`)
+  revalidateAggregates()
   redirect('/clients')
 }
 
@@ -59,6 +61,7 @@ async function deleteClientAction(formData: FormData) {
     .eq('id', id)
 
   revalidatePath('/clients')
+  revalidateAggregates()
   redirect('/clients')
 }
 

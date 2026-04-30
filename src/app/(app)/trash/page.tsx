@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { revalidateAggregates } from '@/lib/revalidate'
 
 type ResourceType = 'project' | 'task' | 'client' | 'person'
 
@@ -25,6 +26,7 @@ async function restoreAction(formData: FormData) {
       .maybeSingle()
     if (data?.project_id) revalidatePath(`/projects/${data.project_id}`)
   }
+  revalidateAggregates()
 }
 
 function tableFor(type: ResourceType): string {

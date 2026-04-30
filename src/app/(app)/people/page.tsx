@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { revalidateAggregates } from '@/lib/revalidate'
 import AvatarUpload from './avatar-upload'
 import { ROLE_LABELS, type Role } from '@/lib/types'
 
@@ -15,6 +16,7 @@ async function updatePersonAction(formData: FormData) {
   const supabase = await createClient()
   await supabase.from('people').update({ name, role, is_resource }).eq('id', id)
   revalidatePath('/people')
+  revalidateAggregates()
 }
 
 async function deletePersonAction(formData: FormData) {
@@ -28,6 +30,7 @@ async function deletePersonAction(formData: FormData) {
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
   revalidatePath('/people')
+  revalidateAggregates()
 }
 
 export default async function PeoplePage() {

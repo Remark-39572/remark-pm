@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
+import { revalidateAggregates } from '@/lib/revalidate'
 import {
   PRIORITY_COLORS,
   PRIORITY_LABELS,
@@ -20,6 +21,7 @@ async function toggleTaskCompletedAction(formData: FormData) {
   const supabase = await createClient()
   await supabase.from('tasks').update({ completed: !completed }).eq('id', id)
   revalidatePath(`/projects/${project_id}`)
+  revalidateAggregates()
 }
 
 async function deleteTaskAction(formData: FormData) {
@@ -34,6 +36,7 @@ async function deleteTaskAction(formData: FormData) {
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
   revalidatePath(`/projects/${project_id}`)
+  revalidateAggregates()
 }
 
 async function updateProjectAction(formData: FormData) {
@@ -69,7 +72,7 @@ async function updateProjectAction(formData: FormData) {
     .eq('id', id)
 
   revalidatePath(`/projects/${id}`)
-  revalidatePath('/projects')
+  revalidateAggregates()
   redirect(`/projects/${id}`)
 }
 
@@ -84,7 +87,7 @@ async function deleteProjectAction(formData: FormData) {
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
 
-  revalidatePath('/projects')
+  revalidateAggregates()
   redirect('/projects')
 }
 
