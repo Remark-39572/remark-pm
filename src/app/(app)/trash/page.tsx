@@ -22,9 +22,8 @@ async function restoreAction(formData: FormData) {
     .update({ deleted_at: null })
     .eq('id', id)
 
-  // Cascade upward: if the parent is still soft-deleted, restore it too
-  // (otherwise the restored row would be invisible on aggregate views)
   if (type === 'task') {
+    // Upward cascade: bring back parent project + client if still deleted
     const { data: task } = await supabase
       .from('tasks')
       .select('project_id')
@@ -36,7 +35,6 @@ async function restoreAction(formData: FormData) {
         .update({ deleted_at: null })
         .eq('id', task.project_id)
         .not('deleted_at', 'is', null)
-      // Also check the project's client
       const { data: project } = await supabase
         .from('projects')
         .select('client_id')
@@ -52,6 +50,13 @@ async function restoreAction(formData: FormData) {
       revalidatePath(`/projects/${task.project_id}`)
     }
   } else if (type === 'project') {
+    // Downward cascade: bring back all child tasks
+    await supabase
+      .from('tasks')
+      .update({ deleted_at: null })
+      .eq('project_id', id)
+      .not('deleted_at', 'is', null)
+    // Upward cascade: bring back parent client if still deleted
     const { data: project } = await supabase
       .from('projects')
       .select('client_id')
@@ -65,7 +70,23 @@ async function restoreAction(formData: FormData) {
         .not('deleted_at', 'is', null)
     }
     revalidatePath('/projects')
+    revalidatePath(`/projects/${id}`)
   } else if (type === 'client') {
+    // Downward cascade: bring back all child projects + their tasks
+    const { data: childProjects } = await supabase
+      .from('projects')
+      .update({ deleted_at: null })
+      .eq('client_id', id)
+      .not('deleted_at', 'is', null)
+      .select('id')
+    const projectIds = (childProjects ?? []).map((p) => p.id as string)
+    if (projectIds.length > 0) {
+      await supabase
+        .from('tasks')
+        .update({ deleted_at: null })
+        .in('project_id', projectIds)
+        .not('deleted_at', 'is', null)
+    }
     revalidatePath('/clients')
   } else if (type === 'person') {
     revalidatePath('/people')
