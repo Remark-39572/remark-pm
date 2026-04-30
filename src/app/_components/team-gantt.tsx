@@ -226,15 +226,21 @@ export default function TeamGantt({
       clientGroup.projects.set(t.projectId, projectGroup)
       byClient.set(t.clientId, clientGroup)
     }
-    return Array.from(byClient.entries()).map(([clientId, c]) => ({
-      clientId,
-      clientName: c.clientName,
-      projects: Array.from(c.projects.entries()).map(([projectId, p]) => ({
-        projectId,
-        projectName: p.projectName,
-        tasks: p.tasks,
-      })),
-    }))
+    const cmp = (a: string, b: string) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' })
+    return Array.from(byClient.entries())
+      .map(([clientId, c]) => ({
+        clientId,
+        clientName: c.clientName,
+        projects: Array.from(c.projects.entries())
+          .map(([projectId, p]) => ({
+            projectId,
+            projectName: p.projectName,
+            tasks: p.tasks,
+          }))
+          .sort((a, b) => cmp(a.projectName, b.projectName)),
+      }))
+      .sort((a, b) => cmp(a.clientName, b.clientName))
   }, [visible, groupByProject])
 
   // Heatmap: per-person, per-day task count
