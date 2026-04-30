@@ -8,6 +8,8 @@ import TeamGantt, {
 } from '@/app/_components/team-gantt'
 import { STATUS_LABELS, type Priority, type ProjectStatus } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 async function updateTaskDatesAction(
   taskId: string,
   start: string,

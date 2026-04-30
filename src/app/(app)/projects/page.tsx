@@ -4,6 +4,9 @@ import Link from 'next/link'
 import ProjectRow from './project-row'
 import { STATUS_LABELS, type ProjectStatus } from '@/lib/types'
 
+
+export const dynamic = 'force-dynamic'
+
 export default async function ProjectsPage() {
   const supabase = await createClient()
   const { data: projects } = await supabase

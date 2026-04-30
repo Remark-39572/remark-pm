@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { revalidateAggregates } from '@/lib/revalidate'
 
+
+export const dynamic = 'force-dynamic'
+
 type ResourceType = 'project' | 'task' | 'client' | 'person'
 
 async function restoreAction(formData: FormData) {

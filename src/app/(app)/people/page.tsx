@@ -4,6 +4,9 @@ import { revalidateAggregates } from '@/lib/revalidate'
 import AvatarUpload from './avatar-upload'
 import { ROLE_LABELS, type Role } from '@/lib/types'
 
+
+export const dynamic = 'force-dynamic'
+
 async function updatePersonAction(formData: FormData) {
   'use server'
   const id = formData.get('id') as string

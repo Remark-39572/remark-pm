@@ -11,6 +11,8 @@ import {
   type ProjectStatus,
 } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 async function toggleTaskCompletedAction(formData: FormData) {
   'use server'
   const id = formData.get('id') as string

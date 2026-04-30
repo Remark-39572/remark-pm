@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { revalidateAggregates } from '@/lib/revalidate'
 import type { Person } from '@/lib/types'
 
+
+export const dynamic = 'force-dynamic'
+
 async function updateClientAction(formData: FormData) {
   'use server'
   const id = formData.get('id') as string

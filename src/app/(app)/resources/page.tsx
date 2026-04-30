@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { isJpHoliday, jpHolidayName } from '@/lib/jp-holidays'
 
+
+export const dynamic = 'force-dynamic'
+
 type ResourcesSearchParams = {
   start?: string
   days?: string

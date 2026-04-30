@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation'
 import { revalidateAggregates } from '@/lib/revalidate'
 import ClientRow from './client-row'
 
+
+export const dynamic = 'force-dynamic'
+
 async function createClientAction(formData: FormData) {
   'use server'
   const name = (formData.get('name') as string)?.trim()
