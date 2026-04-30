@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import AvatarUpload from './avatar-upload'
 import { ROLE_LABELS, type Role } from '@/lib/types'
 
 async function updatePersonAction(formData: FormData) {
@@ -48,10 +49,12 @@ export default async function PeoplePage() {
     .order('created_at', { ascending: true })
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">People</h1>
-        <p className="text-sm text-gray-500">
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          People
+        </h1>
+        <p className="mt-1 text-base text-slate-500">
           {isAdminOrHigher
             ? 'Edit roles and resource settings below.'
             : 'View members.'}
@@ -59,15 +62,16 @@ export default async function PeoplePage() {
       </div>
 
       {!isAdminOrHigher && (
-        <p className="mb-4 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-900">
+        <p className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
           You can view people but only admin/owner can edit.
         </p>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-500">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full text-base">
+          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
             <tr>
+              <th className="px-4 py-3 font-medium">Photo</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -77,9 +81,9 @@ export default async function PeoplePage() {
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100">
             {people?.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50">
+              <tr key={p.id} className="hover:bg-slate-50">
                 {isAdminOrHigher ? (
                   <PersonEditableRow person={p} />
                 ) : (
@@ -91,13 +95,13 @@ export default async function PeoplePage() {
         </table>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+      <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
         <p className="font-medium">How to add a new member</p>
-        <ol className="mt-2 ml-4 list-decimal space-y-1 text-blue-800">
-          <li>その人に <code className="rounded bg-blue-100 px-1">remark-pm.vercel.app</code> を伝える</li>
-          <li>Sign in 画面で自分のメール（@thinkremark.com）を入力</li>
-          <li>受信メールのリンクで初回ログイン → 自動で people に追加（viewerロール）</li>
-          <li>Sakiが上のテーブルでロール変更・リソース設定</li>
+        <ol className="mt-2 ml-4 list-decimal space-y-1 text-sky-800">
+          <li>Share <code className="rounded bg-sky-100 px-1">remark-pm.vercel.app</code> with the person.</li>
+          <li>They enter their @thinkremark.com email on the Sign in screen.</li>
+          <li>They click the magic-link email → auto-added here as a viewer.</li>
+          <li>Saki updates their role and resource flag in the table above.</li>
         </ol>
       </div>
     </div>
@@ -113,12 +117,20 @@ function PersonEditableRow({
     name: string | null
     role: Role
     is_resource: boolean
+    avatar_url: string | null
   }
 }) {
   const formId = `person-form-${person.id}`
   return (
     <>
-      <td className="px-4 py-3 text-gray-700">{person.email}</td>
+      <td className="px-4 py-3">
+        <AvatarUpload
+          personId={person.id}
+          personEmail={person.email}
+          currentUrl={person.avatar_url}
+        />
+      </td>
+      <td className="px-4 py-3 text-slate-700">{person.email}</td>
       <td className="px-4 py-3">
         <form id={formId} action={updatePersonAction}>
           <input type="hidden" name="id" value={person.id} />
@@ -127,7 +139,7 @@ function PersonEditableRow({
             name="name"
             defaultValue={person.name ?? ''}
             placeholder="—"
-            className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-gray-900 focus:outline-none"
+            className="w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-900 focus:outline-none"
           />
         </form>
       </td>
@@ -136,7 +148,7 @@ function PersonEditableRow({
           form={formId}
           name="role"
           defaultValue={person.role}
-          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-gray-900 focus:outline-none"
+          className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-900 focus:outline-none"
         >
           {Object.entries(ROLE_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
@@ -157,7 +169,7 @@ function PersonEditableRow({
         <button
           form={formId}
           type="submit"
-          className="mr-2 rounded bg-gray-900 px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
+          className="mr-2 rounded bg-slate-900 px-2 py-1 text-xs font-medium text-white hover:bg-slate-800"
         >
           Save
         </button>
@@ -165,7 +177,7 @@ function PersonEditableRow({
           <input type="hidden" name="id" value={person.id} />
           <button
             type="submit"
-            className="text-xs text-red-600 hover:text-red-800"
+            className="text-xs text-rose-600 hover:text-rose-800"
           >
             Remove
           </button>
@@ -183,14 +195,29 @@ function PersonReadOnlyRow({
     name: string | null
     role: Role
     is_resource: boolean
+    avatar_url: string | null
   }
 }) {
   return (
     <>
-      <td className="px-4 py-3 text-gray-700">{person.email}</td>
-      <td className="px-4 py-3 text-gray-900">{person.name ?? '—'}</td>
-      <td className="px-4 py-3 text-gray-700">{ROLE_LABELS[person.role]}</td>
-      <td className="px-4 py-3 text-gray-500">
+      <td className="px-4 py-3">
+        {person.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={person.avatar_url}
+            alt={person.email}
+            className="h-9 w-9 rounded-full object-cover"
+          />
+        ) : (
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+            {person.email[0].toUpperCase()}
+          </span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-slate-700">{person.email}</td>
+      <td className="px-4 py-3 text-slate-900">{person.name ?? '—'}</td>
+      <td className="px-4 py-3 text-slate-700">{ROLE_LABELS[person.role]}</td>
+      <td className="px-4 py-3 text-slate-500">
         {person.is_resource ? '✓' : '—'}
       </td>
     </>

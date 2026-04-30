@@ -19,7 +19,7 @@ export default function LoginPage() {
 
     if (allowedDomain && !email.toLowerCase().endsWith(`@${allowedDomain}`)) {
       setStatus('error')
-      setErrorMessage(`@${allowedDomain} のメールアドレスのみ使用できます`)
+      setErrorMessage(`Only @${allowedDomain} email addresses are allowed.`)
       return
     }
 
@@ -40,18 +40,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold text-gray-900">Sign in</h1>
-        <p className="mb-6 text-sm text-gray-600">
-          メールアドレスを入力すると、ログイン用のリンクが届きます。
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-10 shadow-md ring-1 ring-slate-100">
+        <div className="mb-6 flex items-center gap-2">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-base font-bold text-white">
+            R
+          </span>
+          <span className="text-xl font-bold tracking-tight text-slate-900">
+            Remark
+          </span>
+        </div>
+        <h1 className="mb-2 text-2xl font-semibold text-slate-900">Sign in</h1>
+        <p className="mb-6 text-base text-slate-600">
+          Enter your email and we&apos;ll send you a sign-in link.
         </p>
 
         {status === 'sent' ? (
           <div className="rounded-lg bg-green-50 p-4 text-sm text-green-900">
-            <p className="font-medium">メールを送信しました</p>
+            <p className="font-medium">Email sent</p>
             <p className="mt-1">
-              {email} 宛のリンクをクリックしてログインしてください。
+              Click the link sent to {email} to sign in.
             </p>
           </div>
         ) : (
@@ -83,7 +91,7 @@ export default function LoginPage() {
               disabled={status === 'sending'}
               className="w-full rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
             >
-              {status === 'sending' ? '送信中…' : 'Send magic link'}
+              {status === 'sending' ? 'Sending…' : 'Send magic link'}
             </button>
           </form>
         )}

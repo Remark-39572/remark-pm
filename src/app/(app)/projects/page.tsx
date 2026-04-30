@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import ProjectRow from './project-row'
 import { STATUS_LABELS, type ProjectStatus } from '@/lib/types'
 
 export default async function ProjectsPage() {
@@ -11,69 +12,49 @@ export default async function ProjectsPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+            Projects
+          </h1>
+          <p className="mt-1 text-base text-slate-500">
+            All active projects across clients.
+          </p>
+        </div>
         <Link
           href="/projects/new"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="rounded-xl bg-slate-900 px-4 py-2.5 text-base font-medium text-white shadow-sm transition hover:bg-slate-800"
         >
           + New project
         </Link>
       </div>
 
       {projects && projects.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-500">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-base">
+            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-4 py-3 font-medium">Code</th>
-                <th className="px-4 py-3 font-medium">Project</th>
-                <th className="px-4 py-3 font-medium">Client</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Dates</th>
+                <th className="px-5 py-3 font-medium">Code</th>
+                <th className="px-5 py-3 font-medium">Project</th>
+                <th className="px-5 py-3 font-medium">Client</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Dates</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {projects.map((project) => (
-                <tr key={project.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-500">
-                    {project.code ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    <Link
-                      href={`/projects/${project.id}`}
-                      className="hover:underline"
-                    >
-                      {project.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {project.client?.name ?? '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={project.status} />
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {project.start_date && project.end_date
-                      ? `${project.start_date} → ${project.end_date}`
-                      : project.start_date
-                        ? `From ${project.start_date}`
-                        : project.end_date
-                          ? `Until ${project.end_date}`
-                          : '—'}
-                  </td>
-                </tr>
+                <ProjectRow key={project.id} project={project} />
               ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <p className="text-gray-500">No projects yet.</p>
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-16 text-center">
+          <p className="text-base text-slate-500">No projects yet.</p>
           <Link
             href="/projects/new"
-            className="mt-4 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+            className="mt-6 inline-block rounded-xl bg-slate-900 px-4 py-2.5 text-base font-medium text-white shadow-sm transition hover:bg-slate-800"
           >
             Create your first project
           </Link>
@@ -83,16 +64,16 @@ export default async function ProjectsPage() {
   )
 }
 
-function StatusBadge({ status }: { status: ProjectStatus }) {
+export function StatusBadge({ status }: { status: ProjectStatus }) {
   const colors: Record<ProjectStatus, string> = {
-    active: 'bg-green-100 text-green-800',
-    on_hold: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-gray-100 text-gray-700',
-    other: 'bg-blue-100 text-blue-800',
+    active: 'bg-emerald-100 text-emerald-800',
+    on_hold: 'bg-amber-100 text-amber-800',
+    completed: 'bg-slate-200 text-slate-700',
+    other: 'bg-sky-100 text-sky-800',
   }
   return (
     <span
-      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${colors[status]}`}
+      className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}
     >
       {STATUS_LABELS[status]}
     </span>

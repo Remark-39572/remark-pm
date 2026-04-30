@@ -2,15 +2,7 @@ export type Role = 'owner' | 'admin' | 'editor' | 'viewer'
 
 export type ProjectStatus = 'active' | 'on_hold' | 'completed' | 'other'
 
-export type Phase =
-  | 'discovery'
-  | 'scoping'
-  | 'fmb'
-  | 'core_messaging'
-  | 'wireframing'
-  | 'moodboarding'
-  | 'concept_design'
-  | 'design'
+export type Priority = 'low' | 'medium' | 'high' | 'urgent'
 
 export type Person = {
   id: string
@@ -27,8 +19,23 @@ export type Person = {
 export type Client = {
   id: string
   name: string
+  contact_name: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  address: string | null
+  website: string | null
+  note: string | null
   deleted_at: string | null
   created_at: string
+}
+
+export type ClientAssignee = {
+  client_id: string
+  person_id: string
+}
+
+export type ClientWithAssignees = Client & {
+  assignees: Person[]
 }
 
 export type Project = {
@@ -48,7 +55,7 @@ export type Project = {
 export type Task = {
   id: string
   project_id: string
-  phase: Phase | null
+  priority: Priority | null
   activity: string
   deliverable: string | null
   start_date: string | null
@@ -74,15 +81,18 @@ export type TaskWithAssignees = Task & {
   assignees: Person[]
 }
 
-export const PHASE_LABELS: Record<Phase, string> = {
-  discovery: 'Discovery',
-  scoping: 'Scoping',
-  fmb: 'FMB',
-  core_messaging: 'Core Messaging',
-  wireframing: 'Wireframing',
-  moodboarding: 'Moodboarding',
-  concept_design: 'Concept Design',
-  design: 'Design',
+export const PRIORITY_LABELS: Record<Priority, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  urgent: 'Urgent',
+}
+
+export const PRIORITY_COLORS: Record<Priority, string> = {
+  low: 'bg-slate-100 text-slate-600',
+  medium: 'bg-sky-100 text-sky-700',
+  high: 'bg-amber-100 text-amber-800',
+  urgent: 'bg-rose-100 text-rose-800',
 }
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {

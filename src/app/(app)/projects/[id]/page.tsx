@@ -1,46 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import {
-  PHASE_LABELS,
+  PRIORITY_COLORS,
+  PRIORITY_LABELS,
   STATUS_LABELS,
-  type Phase,
+  type Priority,
   type ProjectStatus,
 } from '@/lib/types'
-
-async function createTaskAction(formData: FormData) {
-  'use server'
-  const project_id = formData.get('project_id') as string
-  const activity = (formData.get('activity') as string)?.trim()
-  if (!project_id || !activity) return
-
-  const phase = ((formData.get('phase') as string) || '') as Phase | ''
-  const deliverable =
-    ((formData.get('deliverable') as string) || '').trim() || null
-  const start_date = (formData.get('start_date') as string) || null
-  const due_date = (formData.get('due_date') as string) || null
-  const note = ((formData.get('note') as string) || '').trim() || null
-  const is_meeting = formData.get('is_meeting') === 'on'
-  const is_onsite = formData.get('is_onsite') === 'on'
-  const is_translation = formData.get('is_translation') === 'on'
-
-  const supabase = await createClient()
-  await supabase.from('tasks').insert({
-    project_id,
-    activity,
-    phase: phase || null,
-    deliverable,
-    start_date,
-    due_date,
-    note,
-    is_meeting,
-    is_onsite,
-    is_translation,
-  })
-
-  revalidatePath(`/projects/${project_id}`)
-}
 
 async function toggleTaskCompletedAction(formData: FormData) {
   'use server'
@@ -68,12 +36,69 @@ async function deleteTaskAction(formData: FormData) {
   revalidatePath(`/projects/${project_id}`)
 }
 
+async function updateProjectAction(formData: FormData) {
+  'use server'
+  const id = formData.get('id') as string
+  const name = (formData.get('name') as string)?.trim()
+  const start_date = (formData.get('start_date') as string) || null
+  const end_date = (formData.get('end_date') as string) || null
+  if (!id || !name || !start_date || !end_date) return
+
+  const code = ((formData.get('code') as string) || '').trim() || null
+  const client_id = (formData.get('client_id') as string) || null
+  const status = (formData.get('status') as ProjectStatus) ?? 'active'
+  const time_budget_hours_raw = formData.get('time_budget_hours') as string
+  const time_budget_hours = time_budget_hours_raw
+    ? Number(time_budget_hours_raw)
+    : null
+  const note = ((formData.get('note') as string) || '').trim() || null
+
+  const supabase = await createClient()
+  await supabase
+    .from('projects')
+    .update({
+      name,
+      code,
+      client_id,
+      status,
+      start_date,
+      end_date,
+      time_budget_hours,
+      note,
+    })
+    .eq('id', id)
+
+  revalidatePath(`/projects/${id}`)
+  revalidatePath('/projects')
+  redirect(`/projects/${id}`)
+}
+
+async function deleteProjectAction(formData: FormData) {
+  'use server'
+  const id = formData.get('id') as string
+  if (!id) return
+
+  const supabase = await createClient()
+  await supabase
+    .from('projects')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+
+  revalidatePath('/projects')
+  redirect('/projects')
+}
+
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ edit?: string }>
 }) {
   const { id } = await params
+  const { edit } = await searchParams
+  const isEditing = edit === '1'
+
   const supabase = await createClient()
 
   const { data: project } = await supabase
@@ -90,248 +115,402 @@ export default async function ProjectDetailPage({
     .select('*, task_assignees(person_id, person:people(id, name, email))')
     .eq('project_id', id)
     .is('deleted_at', null)
-    .order('start_date', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: true })
+
+  const { data: clients } = await supabase
+    .from('clients')
+    .select('id, name')
+    .is('deleted_at', null)
+    .order('name', { ascending: true })
 
   return (
-    <div>
-      <div className="mb-6 flex items-center gap-3 text-sm">
-        <Link href="/projects" className="text-gray-500 hover:text-gray-900">
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-6 flex items-center gap-3 text-base">
+        <Link
+          href="/projects"
+          className="text-slate-500 hover:text-slate-900"
+        >
           Projects
         </Link>
-        <span className="text-gray-400">/</span>
-        <span className="font-medium text-gray-900">{project.name}</span>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-900">{project.name}</span>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              {project.name}
-            </h1>
-            <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
-              {project.code && <span>#{project.code}</span>}
-              {project.client && <span>{project.client.name}</span>}
-              <StatusBadge status={project.status} />
-            </div>
+      {isEditing ? (
+        <form
+          action={updateProjectAction}
+          className="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <input type="hidden" name="id" value={project.id} />
+
+          <Field label="Project name" required>
+            <input
+              name="name"
+              type="text"
+              required
+              defaultValue={project.name}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Project code">
+              <input
+                name="code"
+                type="text"
+                defaultValue={project.code ?? ''}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+              />
+            </Field>
+
+            <Field label="Client">
+              <select
+                name="client_id"
+                defaultValue={project.client_id ?? ''}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+              >
+                <option value="">— None —</option>
+                {clients?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
-        </div>
-        {(project.start_date || project.end_date) && (
-          <p className="mt-3 text-sm text-gray-600">
-            {project.start_date ?? '—'} → {project.end_date ?? '—'}
-          </p>
-        )}
-        {project.note && (
-          <p className="mt-3 whitespace-pre-wrap text-sm text-gray-700">
-            {project.note}
-          </p>
-        )}
-      </div>
 
-      <h2 className="mb-3 text-lg font-medium text-gray-900">Tasks</h2>
-
-      {tasks && tasks.length > 0 ? (
-        <div className="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-500">
-              <tr>
-                <th className="w-10 px-4 py-3"></th>
-                <th className="px-4 py-3 font-medium">Activity</th>
-                <th className="px-4 py-3 font-medium">Phase</th>
-                <th className="px-4 py-3 font-medium">Deliverable</th>
-                <th className="px-4 py-3 font-medium">Dates</th>
-                <th className="w-20 px-4 py-3 font-medium">Tags</th>
-                <th className="w-16 px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {tasks.map((task) => (
-                <tr
-                  key={task.id}
-                  className={`hover:bg-gray-50 ${
-                    task.completed ? 'opacity-50' : ''
-                  }`}
-                >
-                  <td className="px-4 py-3">
-                    <form action={toggleTaskCompletedAction}>
-                      <input type="hidden" name="id" value={task.id} />
-                      <input
-                        type="hidden"
-                        name="completed"
-                        value={String(task.completed)}
-                      />
-                      <input
-                        type="hidden"
-                        name="project_id"
-                        value={project.id}
-                      />
-                      <button
-                        type="submit"
-                        className={`flex h-5 w-5 items-center justify-center rounded border transition ${
-                          task.completed
-                            ? 'border-green-500 bg-green-500 text-white'
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        {task.completed && '✓'}
-                      </button>
-                    </form>
-                  </td>
-                  <td
-                    className={`px-4 py-3 font-medium ${
-                      task.completed
-                        ? 'text-gray-500 line-through'
-                        : 'text-gray-900'
-                    }`}
-                  >
-                    {task.activity}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {task.phase ? PHASE_LABELS[task.phase as Phase] : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {task.deliverable ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {task.start_date && task.due_date
-                      ? `${task.start_date} → ${task.due_date}`
-                      : task.due_date
-                        ? `Due ${task.due_date}`
-                        : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    <div className="flex gap-1">
-                      {task.is_meeting && <Tag>MTG</Tag>}
-                      {task.is_onsite && <Tag>On-site</Tag>}
-                      {task.is_translation && <Tag>翻訳</Tag>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <form action={deleteTaskAction} className="inline">
-                      <input type="hidden" name="id" value={task.id} />
-                      <input
-                        type="hidden"
-                        name="project_id"
-                        value={project.id}
-                      />
-                      <button
-                        type="submit"
-                        className="text-xs text-red-600 hover:text-red-800"
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="mb-6 rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
-          No tasks yet. Add one below.
-        </p>
-      )}
-
-      <details className="rounded-2xl border border-gray-200 bg-white p-4">
-        <summary className="cursor-pointer text-sm font-medium text-gray-900">
-          + Add task
-        </summary>
-        <form action={createTaskAction} className="mt-4 space-y-3">
-          <input type="hidden" name="project_id" value={project.id} />
-
-          <input
-            name="activity"
-            type="text"
-            placeholder="Activity (required)"
-            required
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
-          />
-
-          <div className="grid grid-cols-2 gap-3">
+          <Field label="Status">
             <select
-              name="phase"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+              name="status"
+              defaultValue={project.status}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             >
-              <option value="">— Phase (optional) —</option>
-              {Object.entries(PHASE_LABELS).map(([value, label]) => (
+              {Object.entries(STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
               ))}
             </select>
+          </Field>
 
-            <input
-              name="deliverable"
-              type="text"
-              placeholder="Deliverable (optional)"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Start date" required>
+              <input
+                name="start_date"
+                type="date"
+                required
+                defaultValue={project.start_date ?? ''}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+              />
+            </Field>
+            <Field label="End date" required>
+              <input
+                name="end_date"
+                type="date"
+                required
+                defaultValue={project.end_date ?? ''}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+              />
+            </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <Field label="Time budget (hours)">
             <input
-              name="start_date"
-              type="date"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+              name="time_budget_hours"
+              type="number"
+              step="0.25"
+              min="0"
+              defaultValue={project.time_budget_hours ?? ''}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             />
-            <input
-              name="due_date"
-              type="date"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+          </Field>
+
+          <Field label="Note">
+            <textarea
+              name="note"
+              rows={3}
+              defaultValue={project.note ?? ''}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             />
+          </Field>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Link
+              href={`/projects/${project.id}`}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-base font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-base font-medium text-white transition hover:bg-slate-800"
+            >
+              Save
+            </button>
           </div>
-
-          <textarea
-            name="note"
-            rows={2}
-            placeholder="Note (optional)"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
-          />
-
-          <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="is_meeting" /> Meeting
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="is_onsite" /> On-site
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="is_translation" /> Translation
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-          >
-            Add task
-          </button>
         </form>
-      </details>
+      ) : (
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+                {project.name}
+              </h1>
+              <div className="mt-2 flex items-center gap-3 text-base text-slate-500">
+                {project.code && <span>#{project.code}</span>}
+                {project.client && <span>{project.client.name}</span>}
+                <StatusBadge status={project.status} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/projects/${project.id}/timeline`}
+                className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50"
+              >
+                Timeline →
+              </Link>
+              <Link
+                href={`/projects/${project.id}?edit=1`}
+                className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50"
+              >
+                Edit
+              </Link>
+              <form
+                action={deleteProjectAction}
+                className="inline"
+              >
+                <input type="hidden" name="id" value={project.id} />
+                <button
+                  type="submit"
+                  className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-rose-600 ring-1 ring-rose-200 hover:bg-rose-50"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+          {(project.start_date || project.end_date) && (
+            <p className="mt-4 text-base text-slate-600">
+              {project.start_date ?? '—'} → {project.end_date ?? '—'}
+            </p>
+          )}
+          {project.note && (
+            <p className="mt-4 whitespace-pre-wrap text-base text-slate-700">
+              {project.note}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-slate-900">Tasks</h2>
+        <Link
+          href={`/projects/${project.id}/tasks/new`}
+          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+        >
+          + New task
+        </Link>
+      </div>
+
+      {tasks && tasks.length > 0 ? (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-base">
+            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+              <tr>
+                <th className="w-12 px-4 py-3"></th>
+                <th className="px-4 py-3 font-medium">Activity</th>
+                <th className="px-4 py-3 font-medium">Priority</th>
+                <th className="px-4 py-3 font-medium">Deliverable</th>
+                <th className="px-4 py-3 font-medium">Assignees</th>
+                <th className="px-4 py-3 font-medium">Dates</th>
+                <th className="w-20 px-4 py-3 font-medium">Tags</th>
+                <th className="w-32 px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {tasks.map((task) => {
+                const currentAssignees = (task.task_assignees ?? [])
+                  .map(
+                    (ta: {
+                      person:
+                        | { id: string; name: string | null; email: string }
+                        | null
+                    }) => ta.person,
+                  )
+                  .filter(Boolean) as {
+                  id: string
+                  name: string | null
+                  email: string
+                }[]
+                return (
+                  <tr
+                    key={task.id}
+                    className={`hover:bg-slate-50 ${
+                      task.completed ? 'opacity-60' : ''
+                    }`}
+                  >
+                    <td className="px-4 py-3 align-top">
+                      <form action={toggleTaskCompletedAction}>
+                        <input type="hidden" name="id" value={task.id} />
+                        <input
+                          type="hidden"
+                          name="completed"
+                          value={String(task.completed)}
+                        />
+                        <input
+                          type="hidden"
+                          name="project_id"
+                          value={project.id}
+                        />
+                        <button
+                          type="submit"
+                          className={`flex h-6 w-6 items-center justify-center rounded-md border transition ${
+                            task.completed
+                              ? 'border-emerald-500 bg-emerald-500 text-white'
+                              : 'border-slate-300 hover:border-slate-400'
+                          }`}
+                        >
+                          {task.completed && '✓'}
+                        </button>
+                      </form>
+                    </td>
+                    <td
+                      className={`px-4 py-3 align-top text-base font-medium ${
+                        task.completed
+                          ? 'text-slate-500 line-through'
+                          : 'text-slate-900'
+                      }`}
+                    >
+                      {task.activity}
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      {task.priority ? (
+                        <PriorityBadge priority={task.priority as Priority} />
+                      ) : (
+                        <span className="text-sm text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 align-top text-slate-600">
+                      {task.deliverable ?? '—'}
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      {currentAssignees.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {currentAssignees.map((p) => (
+                            <span
+                              key={p.id}
+                              className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
+                            >
+                              {p.name ?? p.email.split('@')[0]}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 align-top text-sm text-slate-500">
+                      {task.start_date && task.due_date
+                        ? `${task.start_date} → ${task.due_date}`
+                        : task.due_date
+                          ? `Due ${task.due_date}`
+                          : '—'}
+                    </td>
+                    <td className="px-4 py-3 align-top text-xs text-slate-500">
+                      <div className="flex flex-col gap-1">
+                        {task.is_meeting && <Tag>MTG</Tag>}
+                        {task.is_onsite && <Tag>On-site</Tag>}
+                        {task.is_translation && <Tag>Translation</Tag>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 align-top text-right">
+                      <Link
+                        href={`/projects/${project.id}/tasks/${task.id}/edit`}
+                        className="text-sm text-slate-600 hover:text-slate-900"
+                      >
+                        Edit
+                      </Link>
+                      <form action={deleteTaskAction} className="ml-3 inline">
+                        <input type="hidden" name="id" value={task.id} />
+                        <input
+                          type="hidden"
+                          name="project_id"
+                          value={project.id}
+                        />
+                        <button
+                          type="submit"
+                          className="text-sm text-rose-600 hover:text-rose-800"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="mb-6 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-base text-slate-500">
+          No tasks yet. Add one below.
+        </p>
+      )}
+
     </div>
   )
 }
 
 function StatusBadge({ status }: { status: ProjectStatus }) {
   const colors: Record<ProjectStatus, string> = {
-    active: 'bg-green-100 text-green-800',
-    on_hold: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-gray-100 text-gray-700',
-    other: 'bg-blue-100 text-blue-800',
+    active: 'bg-emerald-100 text-emerald-800',
+    on_hold: 'bg-amber-100 text-amber-800',
+    completed: 'bg-slate-200 text-slate-700',
+    other: 'bg-sky-100 text-sky-800',
   }
   return (
     <span
-      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${colors[status]}`}
+      className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}
     >
       {STATUS_LABELS[status]}
     </span>
   )
 }
 
+function PriorityBadge({ priority }: { priority: Priority }) {
+  return (
+    <span
+      className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${PRIORITY_COLORS[priority]}`}
+    >
+      {PRIORITY_LABELS[priority]}
+    </span>
+  )
+}
+
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded bg-gray-100 px-1.5 py-0.5 font-medium text-gray-700">
+    <span className="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-700">
       {children}
     </span>
+  )
+}
+
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string
+  required?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-sm font-medium text-slate-700">
+        {label}
+        {required && <span className="ml-0.5 text-rose-500">*</span>}
+      </span>
+      {children}
+    </label>
   )
 }
