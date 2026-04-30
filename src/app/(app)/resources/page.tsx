@@ -37,7 +37,7 @@ export default async function ResourcesPage({
   const { data: tasks } = await supabase
     .from('tasks')
     .select(
-      'id, activity, start_date, due_date, completed, project:projects(id, name), task_assignees(person_id)',
+      'id, activity, start_date, due_date, completed, project:projects(id, name, client:clients(name)), task_assignees(person_id)',
     )
     .is('deleted_at', null)
     .not('start_date', 'is', null)
@@ -199,6 +199,11 @@ export default async function ResourcesPage({
                             const project = Array.isArray(t.project)
                               ? t.project[0]
                               : t.project
+                            const client = project
+                              ? Array.isArray(project.client)
+                                ? project.client[0]
+                                : project.client
+                              : null
                             return (
                               <Link
                                 key={t.id as string}
@@ -208,14 +213,14 @@ export default async function ResourcesPage({
                                     ? 'bg-slate-100 text-slate-500 line-through'
                                     : 'bg-indigo-50 text-indigo-900 hover:bg-indigo-100'
                                 }`}
-                                title={`${project?.name ?? ''} — ${t.activity}`}
+                                title={`${client?.name ?? ''} · ${project?.name ?? ''} — ${t.activity}`}
                               >
                                 <div className="truncate font-medium">
                                   {t.activity as string}
                                 </div>
-                                {project && (
-                                  <div className="truncate text-[10px] text-slate-500">
-                                    {project.name}
+                                {client && (
+                                  <div className="truncate text-[10px] font-semibold text-slate-600">
+                                    {client.name}
                                   </div>
                                 )}
                               </Link>
