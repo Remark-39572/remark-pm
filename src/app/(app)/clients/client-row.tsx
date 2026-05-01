@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 type Props = {
   client: {
     id: string
+    code: string | null
     name: string
     contact_name: string | null
     contact_email: string | null
@@ -21,6 +22,9 @@ export default function ClientRow({ client }: Props) {
       onClick={() => router.push(`/clients/${client.id}`)}
       className="cursor-pointer transition hover:bg-slate-50"
     >
+      <td className="px-5 py-4 text-sm text-slate-500">
+        {client.code ?? '—'}
+      </td>
       <td className="px-5 py-4 font-medium text-slate-900">{client.name}</td>
       <td className="px-5 py-4 text-slate-700">
         {client.contact_name || client.contact_email || (

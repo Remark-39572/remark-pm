@@ -6,7 +6,6 @@ import { STATUS_LABELS, type ProjectStatus } from '@/lib/types'
 type Props = {
   project: {
     id: string
-    code: string | null
     name: string
     status: ProjectStatus
     start_date: string | null
@@ -23,9 +22,6 @@ export default function ProjectRow({ project }: Props) {
       onClick={() => router.push(`/projects/${project.id}`)}
       className="cursor-pointer transition hover:bg-slate-50"
     >
-      <td className="px-5 py-4 text-sm text-slate-500">
-        {project.code ?? '—'}
-      </td>
       <td className="px-5 py-4 font-medium text-slate-900">{project.name}</td>
       <td className="px-5 py-4">
         <StatusBadge status={project.status} />

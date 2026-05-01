@@ -144,7 +144,7 @@ export default async function ProjectTimelinePage({
             {project.name}
           </h1>
           <div className="mt-2 flex items-center gap-3 text-base text-slate-500">
-            {project.code && <span>#{project.code}</span>}
+            {project.client?.code && <span>#{project.client.code}</span>}
             {project.client && <span>{project.client.name}</span>}
             <StatusBadge status={project.status} />
           </div>

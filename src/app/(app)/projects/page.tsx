@@ -17,13 +17,21 @@ export default async function ProjectsPage() {
 
   // Group by client and sort client names A-Z
   type ProjectItem = NonNullable<typeof projects>[number]
-  const groups = new Map<string, { clientName: string; rows: ProjectItem[] }>()
+  const groups = new Map<
+    string,
+    { clientName: string; clientCode: string | null; rows: ProjectItem[] }
+  >()
   for (const p of projects ?? []) {
     const client = Array.isArray(p.client) ? p.client[0] : p.client
     const key = (client?.id as string | undefined) ?? '__no_client__'
     const name = (client?.name as string | undefined) ?? 'No client'
-    const entry: { clientName: string; rows: ProjectItem[] } =
-      groups.get(key) ?? { clientName: name, rows: [] }
+    const code = (client?.code as string | undefined) ?? null
+    const entry: {
+      clientName: string
+      clientCode: string | null
+      rows: ProjectItem[]
+    } =
+      groups.get(key) ?? { clientName: name, clientCode: code, rows: [] }
     entry.rows.push(p)
     groups.set(key, entry)
   }
@@ -57,7 +65,6 @@ export default async function ProjectsPage() {
           <table className="w-full text-base">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-5 py-3 font-medium">Code</th>
                 <th className="px-5 py-3 font-medium">Project</th>
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium">Dates</th>
@@ -68,9 +75,14 @@ export default async function ProjectsPage() {
                 <Fragment key={clientId}>
                   <tr className="bg-slate-100">
                     <td
-                      colSpan={4}
+                      colSpan={3}
                       className="px-5 py-2 text-xs font-bold uppercase tracking-wide text-slate-700"
                     >
+                      {group.clientCode && (
+                        <span className="mr-2 text-slate-500">
+                          #{group.clientCode}
+                        </span>
+                      )}
                       {group.clientName}
                     </td>
                   </tr>

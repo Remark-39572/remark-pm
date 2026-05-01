@@ -70,6 +70,7 @@ export default async function ClientsPage() {
           <table className="w-full text-base">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
+                <th className="px-5 py-3 font-medium">Code</th>
                 <th className="px-5 py-3 font-medium">Client</th>
                 <th className="px-5 py-3 font-medium">Contact</th>
                 <th className="px-5 py-3 font-medium">Team</th>
@@ -82,6 +83,7 @@ export default async function ClientsPage() {
                   key={c.id}
                   client={{
                     id: c.id as string,
+                    code: (c.code as string | null) ?? null,
                     name: c.name as string,
                     contact_name: (c.contact_name as string | null) ?? null,
                     contact_email: (c.contact_email as string | null) ?? null,

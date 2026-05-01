@@ -11,7 +11,6 @@ async function createProjectAction(formData: FormData) {
   const end_date = (formData.get('end_date') as string) || null
   if (!name || !start_date || !end_date) return
 
-  const code = ((formData.get('code') as string) || '').trim() || null
   const client_id = (formData.get('client_id') as string) || null
   const status = (formData.get('status') as ProjectStatus) ?? 'active'
   const time_budget_hours_raw = formData.get('time_budget_hours') as string
@@ -23,7 +22,6 @@ async function createProjectAction(formData: FormData) {
   const supabase = await createClient()
   const { error } = await supabase.from('projects').insert({
     name,
-    code,
     client_id,
     status,
     start_date,
@@ -71,39 +69,28 @@ export default async function NewProjectPage() {
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Project code">
-            <input
-              name="code"
-              type="text"
-              placeholder="e.g. 047"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-            />
-          </Field>
-
-          <Field label="Client">
-            <select
-              name="client_id"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-            >
-              <option value="">— Select —</option>
-              {clients?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {clients && clients.length === 0 && (
-              <p className="mt-1 text-xs text-slate-500">
-                No clients yet.{' '}
-                <Link href="/clients" className="underline">
-                  Add a client
-                </Link>{' '}
-                first.
-              </p>
-            )}
-          </Field>
-        </div>
+        <Field label="Client">
+          <select
+            name="client_id"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+          >
+            <option value="">— Select —</option>
+            {clients?.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          {clients && clients.length === 0 && (
+            <p className="mt-1 text-xs text-slate-500">
+              No clients yet.{' '}
+              <Link href="/clients" className="underline">
+                Add a client
+              </Link>{' '}
+              first.
+            </p>
+          )}
+        </Field>
 
         <Field label="Status">
           <select

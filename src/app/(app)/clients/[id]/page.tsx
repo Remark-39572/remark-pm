@@ -14,6 +14,7 @@ async function updateClientAction(formData: FormData) {
   const name = (formData.get('name') as string)?.trim()
   if (!id || !name) return
 
+  const code = ((formData.get('code') as string) || '').trim() || null
   const contact_name =
     ((formData.get('contact_name') as string) || '').trim() || null
   const contact_email =
@@ -30,6 +31,7 @@ async function updateClientAction(formData: FormData) {
     .from('clients')
     .update({
       name,
+      code,
       contact_name,
       contact_email,
       contact_phone,
@@ -106,7 +108,7 @@ export default async function ClientDetailPage({
 
   const { data: projects } = await supabase
     .from('projects')
-    .select('id, name, status, code')
+    .select('id, name, status')
     .eq('client_id', id)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
@@ -132,15 +134,26 @@ export default async function ClientDetailPage({
       >
         <input type="hidden" name="id" value={client.id} />
 
-        <Field label="Client name" required>
-          <input
-            name="name"
-            type="text"
-            required
-            defaultValue={client.name}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-          />
-        </Field>
+        <div className="grid grid-cols-[1fr_140px] gap-5">
+          <Field label="Client name" required>
+            <input
+              name="name"
+              type="text"
+              required
+              defaultValue={client.name}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            />
+          </Field>
+          <Field label="Client code">
+            <input
+              name="code"
+              type="text"
+              placeholder="e.g. SB"
+              defaultValue={client.code ?? ''}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            />
+          </Field>
+        </div>
 
         <div className="grid grid-cols-2 gap-5">
           <Field label="Contact name">
@@ -255,9 +268,6 @@ export default async function ClientDetailPage({
                   className="flex items-center justify-between py-3 hover:bg-slate-50"
                 >
                   <span className="text-base font-medium text-slate-900">
-                    {p.code && (
-                      <span className="mr-2 text-slate-400">#{p.code}</span>
-                    )}
                     {p.name}
                   </span>
                   <span className="text-sm text-slate-500">{p.status}</span>

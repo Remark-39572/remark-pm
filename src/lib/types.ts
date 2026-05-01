@@ -18,6 +18,7 @@ export type Person = {
 
 export type Client = {
   id: string
+  code: string | null
   name: string
   contact_name: string | null
   contact_email: string | null
@@ -41,7 +42,6 @@ export type ClientWithAssignees = Client & {
 export type Project = {
   id: string
   client_id: string | null
-  code: string | null
   name: string
   status: ProjectStatus
   start_date: string | null

@@ -44,22 +44,22 @@ begin
   -- ============================================================
   -- Clients
   -- ============================================================
-  insert into clients (name, contact_name, contact_email, contact_phone, website, note)
+  insert into clients (name, code, contact_name, contact_email, contact_phone, website, note)
   values
-    ('Demo Client (Tokyo Tours)', 'John Smith', 'john@tokyotours.example',
+    ('Demo Client (Tokyo Tours)', 'DM', 'John Smith', 'john@tokyotours.example',
      null, 'https://tokyotours.example',
      'Trial client for a single-page microsite.')
   returning id into c_demo;
 
-  insert into clients (name, contact_name, contact_email, contact_phone, website, note)
+  insert into clients (name, code, contact_name, contact_email, contact_phone, website, note)
   values
-    ('S&B', 'Taro Tanaka', 'tanaka@sb.example', '03-1234-5678', 'https://sb.example',
+    ('S&B', 'SB', 'Taro Tanaka', 'tanaka@sb.example', '03-1234-5678', 'https://sb.example',
      'Inbound food brand. Delivered bilingually (JP/EN).')
   returning id into c_sb;
 
-  insert into clients (name, contact_name, contact_email, contact_phone, website, note)
+  insert into clients (name, code, contact_name, contact_email, contact_phone, website, note)
   values
-    ('YsMD', 'Hanako Sato', 'sato@ysmd.example', '03-9876-5432', 'https://ysmd.example',
+    ('YsMD', 'YS', 'Hanako Sato', 'sato@ysmd.example', '03-9876-5432', 'https://ysmd.example',
      'Rebranding for an OTC health product line.')
   returning id into c_ysmd;
 
@@ -71,26 +71,26 @@ begin
   -- ============================================================
   -- Projects
   -- ============================================================
-  insert into projects (client_id, code, name, status, start_date, end_date, time_budget_hours, note)
-  values (c_demo, 'DM-01', 'Quick microsite', 'active',
+  insert into projects (client_id, name, status, start_date, end_date, time_budget_hours, note)
+  values (c_demo, 'Quick microsite', 'active',
           '2026-05-05', '2026-05-25', 40,
           'Single-page microsite, template-based.')
   returning id into p_demo;
 
-  insert into projects (client_id, code, name, status, start_date, end_date, time_budget_hours, note)
-  values (c_sb, 'SB-01', 'Inbound tourism site renewal', 'active',
+  insert into projects (client_id, name, status, start_date, end_date, time_budget_hours, note)
+  values (c_sb, 'Inbound tourism site renewal', 'active',
           '2026-05-01', '2026-07-31', 240,
           'New corporate site targeting overseas travelers. EN/JP in parallel.')
   returning id into p_sb_site;
 
-  insert into projects (client_id, code, name, status, start_date, end_date, time_budget_hours, note)
-  values (c_sb, 'SB-02', 'Q3 inbound campaign', 'active',
+  insert into projects (client_id, name, status, start_date, end_date, time_budget_hours, note)
+  values (c_sb, 'Q3 inbound campaign', 'active',
           '2026-06-01', '2026-07-15', 80,
           'Summer campaign. Overlaps with the site renewal window.')
   returning id into p_sb_camp;
 
-  insert into projects (client_id, code, name, status, start_date, end_date, time_budget_hours, note)
-  values (c_ysmd, 'YS-01', 'Brand refresh', 'active',
+  insert into projects (client_id, name, status, start_date, end_date, time_budget_hours, note)
+  values (c_ysmd, 'Brand refresh', 'active',
           '2026-05-15', '2026-06-30', 120,
           'Brand-guideline rewrite, also rolling out to packaging.')
   returning id into p_ysmd_brand;

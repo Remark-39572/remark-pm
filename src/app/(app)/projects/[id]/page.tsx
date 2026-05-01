@@ -49,7 +49,6 @@ async function updateProjectAction(formData: FormData) {
   const end_date = (formData.get('end_date') as string) || null
   if (!id || !name || !start_date || !end_date) return
 
-  const code = ((formData.get('code') as string) || '').trim() || null
   const client_id = (formData.get('client_id') as string) || null
   const status = (formData.get('status') as ProjectStatus) ?? 'active'
   const time_budget_hours_raw = formData.get('time_budget_hours') as string
@@ -63,7 +62,6 @@ async function updateProjectAction(formData: FormData) {
     .from('projects')
     .update({
       name,
-      code,
       client_id,
       status,
       start_date,
@@ -162,31 +160,20 @@ export default async function ProjectDetailPage({
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Project code">
-              <input
-                name="code"
-                type="text"
-                defaultValue={project.code ?? ''}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-              />
-            </Field>
-
-            <Field label="Client">
-              <select
-                name="client_id"
-                defaultValue={project.client_id ?? ''}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-              >
-                <option value="">— None —</option>
-                {clients?.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
+          <Field label="Client">
+            <select
+              name="client_id"
+              defaultValue={project.client_id ?? ''}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            >
+              <option value="">— None —</option>
+              {clients?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
 
           <Field label="Status">
             <select
@@ -266,7 +253,7 @@ export default async function ProjectDetailPage({
                 {project.name}
               </h1>
               <div className="mt-2 flex items-center gap-3 text-base text-slate-500">
-                {project.code && <span>#{project.code}</span>}
+                {project.client?.code && <span>#{project.client.code}</span>}
                 {project.client && <span>{project.client.name}</span>}
                 <StatusBadge status={project.status} />
               </div>
