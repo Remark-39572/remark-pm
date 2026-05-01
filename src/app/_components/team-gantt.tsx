@@ -652,9 +652,9 @@ export default function TeamGantt({
               </div>
             ))}
 
-            {/* Heatmap left labels */}
+            {/* Heatmap left labels — sticky to the bottom */}
             {heatmap && resourcePeople.length > 0 && (
-              <div className="border-t-2 border-slate-300">
+              <div className="sticky bottom-0 z-20 border-t-2 border-slate-300 bg-white shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.08)]">
                 <div
                   className="flex items-center bg-slate-100 px-4 text-xs font-semibold uppercase tracking-wider text-slate-600"
                   style={{ height: PROJECT_HEADER_HEIGHT }}
@@ -664,7 +664,7 @@ export default function TeamGantt({
                 {resourcePeople.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center gap-2 border-b border-slate-100 px-4 text-sm text-slate-700"
+                    className="flex items-center gap-2 border-b border-slate-100 bg-white px-4 text-sm text-slate-700"
                     style={{ height: HEATMAP_ROW_HEIGHT }}
                   >
                     <Avatar person={p} size={20} />
@@ -837,9 +837,9 @@ export default function TeamGantt({
                 </div>
               ))}
 
-              {/* Heatmap */}
+              {/* Heatmap — sticky to the bottom */}
               {heatmap && resourcePeople.length > 0 && (
-                <div className="border-t-2 border-slate-300">
+                <div className="sticky bottom-0 z-10 border-t-2 border-slate-300 bg-white shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.08)]">
                   <div
                     className="bg-slate-100"
                     style={{
@@ -857,7 +857,7 @@ export default function TeamGantt({
                   {resourcePeople.map((p) => (
                     <div
                       key={p.id}
-                      className="relative border-b border-slate-100"
+                      className="relative border-b border-slate-100 bg-white"
                       style={{ height: HEATMAP_ROW_HEIGHT }}
                     >
                       {dateList.map((d, i) => {
