@@ -34,6 +34,7 @@ export type GanttTaskRow = {
   projectName: string
   clientId: string
   clientName: string
+  clientCode: string | null
 }
 
 type ViewMode = 'Day' | 'Week' | 'Month'
@@ -100,11 +101,12 @@ export default function TeamGantt({
 
   // Distinct options derived from all tasks
   const filterOptions = useMemo(() => {
-    const clients = new Map<string, string>()
+    const clients = new Map<string, { name: string; code: string | null }>()
     const projects = new Map<string, string>()
     const assignees = new Map<string, string>()
     for (const t of tasks) {
-      if (t.clientId) clients.set(t.clientId, t.clientName)
+      if (t.clientId)
+        clients.set(t.clientId, { name: t.clientName, code: t.clientCode })
       projects.set(t.projectId, t.projectName)
       for (const a of t.assignees) {
         assignees.set(a.id, a.name ?? a.email.split('@')[0])
@@ -112,7 +114,7 @@ export default function TeamGantt({
     }
     return {
       clients: Array.from(clients.entries()).sort((a, b) =>
-        a[1].localeCompare(b[1]),
+        a[1].name.localeCompare(b[1].name),
       ),
       projects: Array.from(projects.entries()).sort((a, b) =>
         a[1].localeCompare(b[1]),
@@ -127,7 +129,17 @@ export default function TeamGantt({
     const q = search.trim().toLowerCase()
     return tasks.filter((t) => {
       if (hideCompleted && t.completed) return false
-      if (q && !t.activity.toLowerCase().includes(q)) return false
+      if (q) {
+        const haystack = [
+          t.activity,
+          t.projectName,
+          t.clientName,
+          t.clientCode ?? '',
+        ]
+          .join(' ')
+          .toLowerCase()
+        if (!haystack.includes(q)) return false
+      }
       if (filterClient && t.clientId !== filterClient) return false
       if (filterProject && t.projectId !== filterProject) return false
       if (filterAssignee && !t.assignees.some((a) => a.id === filterAssignee))
@@ -203,6 +215,7 @@ export default function TeamGantt({
         {
           clientId: '',
           clientName: '',
+          clientCode: null as string | null,
           projects: [{ projectId: '', projectName: '', tasks: visible }],
         },
       ]
@@ -210,12 +223,14 @@ export default function TeamGantt({
     type ProjectGroup = { projectName: string; tasks: GanttTaskRow[] }
     type ClientGroup = {
       clientName: string
+      clientCode: string | null
       projects: Map<string, ProjectGroup>
     }
     const byClient = new Map<string, ClientGroup>()
     for (const t of visible) {
       const clientGroup = byClient.get(t.clientId) ?? {
         clientName: t.clientName,
+        clientCode: t.clientCode,
         projects: new Map<string, ProjectGroup>(),
       }
       const projectGroup = clientGroup.projects.get(t.projectId) ?? {
@@ -232,6 +247,7 @@ export default function TeamGantt({
       .map(([clientId, c]) => ({
         clientId,
         clientName: c.clientName,
+        clientCode: c.clientCode,
         projects: Array.from(c.projects.entries())
           .map(([projectId, p]) => ({
             projectId,
@@ -483,8 +499,8 @@ export default function TeamGantt({
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tasks…"
-            className="w-48 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            placeholder="Search task / project / client / code…"
+            className="w-64 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
           />
           {groupByProject && filterOptions.clients.length > 0 && (
             <select
@@ -493,9 +509,9 @@ export default function TeamGantt({
               className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
             >
               <option value="">All clients</option>
-              {filterOptions.clients.map(([id, name]) => (
+              {filterOptions.clients.map(([id, info]) => (
                 <option key={id} value={id}>
-                  {name}
+                  {info.code ? `${info.code} · ${info.name}` : info.name}
                 </option>
               ))}
             </select>
@@ -588,9 +604,14 @@ export default function TeamGantt({
               <div key={clientGroup.clientId}>
                 {groupByProject && clientGroup.clientName && (
                   <div
-                    className="flex items-center border-b border-slate-200 bg-slate-200 px-4 text-sm font-bold uppercase tracking-wide text-slate-800"
+                    className="flex items-center gap-2 border-b border-slate-200 bg-slate-200 px-4 text-sm font-bold uppercase tracking-wide text-slate-800"
                     style={{ height: CLIENT_HEADER_HEIGHT }}
                   >
+                    {clientGroup.clientCode && (
+                      <span className="rounded bg-white/70 px-1.5 py-0.5 text-xs font-mono text-slate-600">
+                        {clientGroup.clientCode}
+                      </span>
+                    )}
                     {clientGroup.clientName}
                   </div>
                 )}

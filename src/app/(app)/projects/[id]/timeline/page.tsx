@@ -76,13 +76,12 @@ export default async function ProjectTimelinePage({
     avatarUrl: (p.avatar_url as string | null) ?? null,
   }))
 
-  const clientId =
-    (Array.isArray(project.client) ? project.client[0]?.id : project.client?.id) ??
-    '__no_client__'
-  const clientName =
-    (Array.isArray(project.client)
-      ? project.client[0]?.name
-      : project.client?.name) ?? 'No client'
+  const clientObj = Array.isArray(project.client)
+    ? project.client[0]
+    : project.client
+  const clientId = (clientObj?.id as string | undefined) ?? '__no_client__'
+  const clientName = (clientObj?.name as string | undefined) ?? 'No client'
+  const clientCode = (clientObj?.code as string | null | undefined) ?? null
 
   const ganttTasks: GanttTaskRow[] = (tasks ?? []).map((t) => ({
     id: t.id as string,
@@ -119,6 +118,7 @@ export default async function ProjectTimelinePage({
     projectName: project.name as string,
     clientId,
     clientName,
+    clientCode,
   }))
 
   return (

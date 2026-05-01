@@ -38,7 +38,7 @@ export default async function GlobalTimelinePage() {
   const { data: tasksRaw } = await supabase
     .from('tasks')
     .select(
-      'id, activity, start_date, due_date, completed, priority, project:projects(id, name, deleted_at, client:clients(id, name, deleted_at)), task_assignees(person:people(id, name, email, avatar_url))',
+      'id, activity, start_date, due_date, completed, priority, project:projects(id, name, deleted_at, client:clients(id, name, code, deleted_at)), task_assignees(person:people(id, name, email, avatar_url))',
     )
     .is('deleted_at', null)
     .not('start_date', 'is', null)
@@ -115,6 +115,7 @@ export default async function GlobalTimelinePage() {
         projectName: project.name as string,
         clientId: (client?.id as string) ?? '__no_client__',
         clientName: (client?.name as string) ?? 'No client',
+        clientCode: (client?.code as string | null) ?? null,
       }
     })
     .filter(Boolean) as GanttTaskRow[]
