@@ -11,15 +11,23 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const allowedDomain = process.env.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN ?? ''
+  const extraAllowed = (process.env.NEXT_PUBLIC_EXTRA_ALLOWED_EMAILS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('sending')
     setErrorMessage('')
 
-    if (allowedDomain && !email.toLowerCase().endsWith(`@${allowedDomain}`)) {
+    const lowered = email.toLowerCase()
+    const domainOk =
+      !allowedDomain || lowered.endsWith(`@${allowedDomain}`)
+    const extraOk = extraAllowed.includes(lowered)
+    if (!domainOk && !extraOk) {
       setStatus('error')
-      setErrorMessage(`Only @${allowedDomain} email addresses are allowed.`)
+      setErrorMessage(`Only approved email addresses can sign in.`)
       return
     }
 
