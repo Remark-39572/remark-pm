@@ -35,6 +35,26 @@ async function updateTaskDatesAction(
   revalidatePath('/resources')
 }
 
+async function toggleTaskCompletedAction(taskId: string, nextCompleted: boolean) {
+  'use server'
+  const supabase = await createClient()
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('project_id')
+    .eq('id', taskId)
+    .maybeSingle()
+  const { error } = await supabase
+    .from('tasks')
+    .update({ completed: nextCompleted })
+    .eq('id', taskId)
+  if (error) throw new Error(error.message)
+  if (task?.project_id) {
+    revalidatePath(`/projects/${task.project_id}`)
+    revalidatePath(`/projects/${task.project_id}/timeline`)
+  }
+  revalidatePath('/timeline')
+}
+
 export default async function ProjectTimelinePage({
   params,
 }: {
@@ -163,6 +183,7 @@ export default async function ProjectTimelinePage({
         groupByProject={false}
         resourcePeople={resourcePeople}
         onTaskDateChange={updateTaskDatesAction}
+        onToggleCompleted={toggleTaskCompletedAction}
       />
     </div>
   )

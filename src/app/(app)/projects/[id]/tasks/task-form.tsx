@@ -86,6 +86,7 @@ export default function TaskForm({
           <input
             name="start_date"
             type="date"
+            lang="en"
             required
             defaultValue={initial?.start_date ?? ''}
             className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
@@ -100,6 +101,7 @@ export default function TaskForm({
           <input
             name="due_date"
             type="date"
+            lang="en"
             required
             defaultValue={initial?.due_date ?? ''}
             className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"

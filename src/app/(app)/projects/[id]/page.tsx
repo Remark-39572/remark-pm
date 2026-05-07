@@ -10,6 +10,7 @@ import {
   type Priority,
   type ProjectStatus,
 } from '@/lib/types'
+import TaskCheckbox from './task-checkbox'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +28,6 @@ async function toggleTaskCompletedAction(formData: FormData) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath(`/projects/${project_id}`)
-  revalidateAggregates()
 }
 
 async function deleteTaskAction(formData: FormData) {
@@ -206,6 +206,7 @@ export default async function ProjectDetailPage({
               <input
                 name="start_date"
                 type="date"
+                lang="en"
                 required
                 defaultValue={project.start_date ?? ''}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
@@ -215,6 +216,7 @@ export default async function ProjectDetailPage({
               <input
                 name="end_date"
                 type="date"
+                lang="en"
                 required
                 defaultValue={project.end_date ?? ''}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
@@ -325,7 +327,7 @@ export default async function ProjectDetailPage({
           <table className="w-full text-base">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="w-12 px-4 py-3"></th>
+                <th className="w-12 px-4 py-3 font-medium">Done</th>
                 <th className="px-4 py-3 font-medium">Activity</th>
                 <th className="px-4 py-3 font-medium">Priority</th>
                 <th className="px-4 py-3 font-medium">Deliverable</th>
@@ -358,29 +360,12 @@ export default async function ProjectDetailPage({
                     }`}
                   >
                     <td className="px-4 py-3 align-top">
-                      <form action={toggleTaskCompletedAction}>
-                        <input type="hidden" name="id" value={task.id} />
-                        <input
-                          type="hidden"
-                          name="completed"
-                          value={String(task.completed)}
-                        />
-                        <input
-                          type="hidden"
-                          name="project_id"
-                          value={project.id}
-                        />
-                        <button
-                          type="submit"
-                          className={`flex h-6 w-6 items-center justify-center rounded-md border transition ${
-                            task.completed
-                              ? 'border-emerald-500 bg-emerald-500 text-white'
-                              : 'border-slate-300 hover:border-slate-400'
-                          }`}
-                        >
-                          {task.completed && '✓'}
-                        </button>
-                      </form>
+                      <TaskCheckbox
+                        taskId={task.id as string}
+                        projectId={project.id as string}
+                        completed={!!task.completed}
+                        action={toggleTaskCompletedAction}
+                      />
                     </td>
                     <td
                       className={`px-4 py-3 align-top text-base font-medium ${

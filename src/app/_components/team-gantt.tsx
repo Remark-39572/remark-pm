@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {
   useEffect,
   useMemo,
+  useOptimistic,
   useRef,
   useState,
   useTransition,
@@ -70,6 +71,10 @@ type Props = {
     start: string,
     end: string,
   ) => Promise<void>
+  onToggleCompleted?: (
+    taskId: string,
+    nextCompleted: boolean,
+  ) => Promise<void>
 }
 
 type DragRef = {
@@ -88,9 +93,10 @@ export default function TeamGantt({
   groupByProject = true,
   resourcePeople = [],
   onTaskDateChange,
+  onToggleCompleted,
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('Day')
-  const [hideCompleted, setHideCompleted] = useState(false)
+  const [hideCompleted, setHideCompleted] = useState(true)
   const [search, setSearch] = useState('')
   const [filterClient, setFilterClient] = useState('')
   const [filterProject, setFilterProject] = useState('')
@@ -163,7 +169,7 @@ export default function TeamGantt({
     !!filterProject ||
     !!filterAssignee ||
     !!filterPriority ||
-    hideCompleted
+    !hideCompleted
 
   function clearFilters() {
     setSearch('')
@@ -171,7 +177,7 @@ export default function TeamGantt({
     setFilterProject('')
     setFilterAssignee('')
     setFilterPriority('')
-    setHideCompleted(false)
+    setHideCompleted(true)
   }
 
   const { dateList, minDate } = useMemo(() => {
@@ -593,7 +599,8 @@ export default function TeamGantt({
               className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50"
               style={{ height: 60 }}
             >
-              <div className="grid h-full grid-cols-[1fr_120px_60px] items-center px-4 text-xs font-medium uppercase tracking-wider text-slate-500">
+              <div className="grid h-full grid-cols-[28px_1fr_120px_60px] items-center gap-2 px-3 text-xs font-medium uppercase tracking-wider text-slate-500">
+                <div className="text-center">Done</div>
                 <div>Task</div>
                 <div>Assigned</div>
                 <div className="text-right">Priority</div>
@@ -633,9 +640,18 @@ export default function TeamGantt({
                     {projectGroup.tasks.map((t) => (
                       <div
                         key={t.id}
-                        className="grid grid-cols-[1fr_120px_60px] items-center border-b border-slate-100 px-4 hover:bg-slate-50"
+                        className="grid grid-cols-[28px_1fr_120px_60px] items-center gap-2 border-b border-slate-100 px-3 hover:bg-slate-50"
                         style={{ height: ROW_HEIGHT }}
                       >
+                        {onToggleCompleted ? (
+                          <GanttTaskCheckbox
+                            taskId={t.id}
+                            completed={t.completed}
+                            action={onToggleCompleted}
+                          />
+                        ) : (
+                          <span />
+                        )}
                         <Link
                           href={`/projects/${t.projectId}/tasks/${t.id}/edit`}
                           className={`truncate pr-2 text-sm ${
@@ -1089,4 +1105,38 @@ function groupConsecutive<T, K>(
     }
   }
   return groups
+}
+
+function GanttTaskCheckbox({
+  taskId,
+  completed,
+  action,
+}: {
+  taskId: string
+  completed: boolean
+  action: (taskId: string, nextCompleted: boolean) => Promise<void>
+}) {
+  const [optimistic, setOptimistic] = useOptimistic(completed)
+  const [, startTransition] = useTransition()
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const next = !optimistic
+        startTransition(async () => {
+          setOptimistic(next)
+          await action(taskId, next)
+        })
+      }}
+      className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${
+        optimistic
+          ? 'border-emerald-500 bg-emerald-500 text-white'
+          : 'border-slate-300 hover:border-slate-400'
+      }`}
+      aria-label={optimistic ? 'Mark as not done' : 'Mark as done'}
+    >
+      {optimistic && <span className="text-[11px] leading-none">✓</span>}
+    </button>
+  )
 }
