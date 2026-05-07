@@ -13,11 +13,12 @@ async function createClientAction(formData: FormData) {
   if (!name) return
 
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('clients')
     .insert({ name })
     .select('id')
     .single()
+  if (error) throw new Error(error.message)
   revalidatePath('/clients')
   revalidateAggregates()
   if (data?.id) redirect(`/clients/${data.id}`)

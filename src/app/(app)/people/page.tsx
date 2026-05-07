@@ -17,7 +17,11 @@ async function updatePersonAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
-  await supabase.from('people').update({ name, role, is_resource }).eq('id', id)
+  const { error } = await supabase
+    .from('people')
+    .update({ name, role, is_resource })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
   revalidatePath('/people')
   revalidateAggregates()
 }
@@ -28,10 +32,11 @@ async function deletePersonAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
-  await supabase
+  const { error } = await supabase
     .from('people')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
+  if (error) throw new Error(error.message)
   revalidatePath('/people')
   revalidateAggregates()
 }

@@ -17,10 +17,11 @@ async function restoreAction(formData: FormData) {
   const supabase = await createClient()
 
   // Restore the target row first
-  await supabase
+  const { error: restoreError } = await supabase
     .from(tableFor(type))
     .update({ deleted_at: null })
     .eq('id', id)
+  if (restoreError) throw new Error(restoreError.message)
 
   if (type === 'task') {
     // Upward cascade: bring back parent project + client if still deleted
@@ -30,32 +31,37 @@ async function restoreAction(formData: FormData) {
       .eq('id', id)
       .maybeSingle()
     if (task?.project_id) {
-      await supabase
+      const { error: projectRestoreError } = await supabase
         .from('projects')
         .update({ deleted_at: null })
         .eq('id', task.project_id)
         .not('deleted_at', 'is', null)
+      if (projectRestoreError) throw new Error(projectRestoreError.message)
+
       const { data: project } = await supabase
         .from('projects')
         .select('client_id')
         .eq('id', task.project_id)
         .maybeSingle()
       if (project?.client_id) {
-        await supabase
+        const { error: clientRestoreError } = await supabase
           .from('clients')
           .update({ deleted_at: null })
           .eq('id', project.client_id)
           .not('deleted_at', 'is', null)
+        if (clientRestoreError) throw new Error(clientRestoreError.message)
       }
       revalidatePath(`/projects/${task.project_id}`)
     }
   } else if (type === 'project') {
     // Downward cascade: bring back all child tasks
-    await supabase
+    const { error: tasksRestoreError } = await supabase
       .from('tasks')
       .update({ deleted_at: null })
       .eq('project_id', id)
       .not('deleted_at', 'is', null)
+    if (tasksRestoreError) throw new Error(tasksRestoreError.message)
+
     // Upward cascade: bring back parent client if still deleted
     const { data: project } = await supabase
       .from('projects')
@@ -63,29 +69,33 @@ async function restoreAction(formData: FormData) {
       .eq('id', id)
       .maybeSingle()
     if (project?.client_id) {
-      await supabase
+      const { error: clientRestoreError } = await supabase
         .from('clients')
         .update({ deleted_at: null })
         .eq('id', project.client_id)
         .not('deleted_at', 'is', null)
+      if (clientRestoreError) throw new Error(clientRestoreError.message)
     }
     revalidatePath('/projects')
     revalidatePath(`/projects/${id}`)
   } else if (type === 'client') {
     // Downward cascade: bring back all child projects + their tasks
-    const { data: childProjects } = await supabase
+    const { data: childProjects, error: projectsRestoreError } = await supabase
       .from('projects')
       .update({ deleted_at: null })
       .eq('client_id', id)
       .not('deleted_at', 'is', null)
       .select('id')
+    if (projectsRestoreError) throw new Error(projectsRestoreError.message)
+
     const projectIds = (childProjects ?? []).map((p) => p.id as string)
     if (projectIds.length > 0) {
-      await supabase
+      const { error: tasksRestoreError } = await supabase
         .from('tasks')
         .update({ deleted_at: null })
         .in('project_id', projectIds)
         .not('deleted_at', 'is', null)
+      if (tasksRestoreError) throw new Error(tasksRestoreError.message)
     }
     revalidatePath('/clients')
   } else if (type === 'person') {

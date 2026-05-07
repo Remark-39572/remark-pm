@@ -25,7 +25,7 @@ async function updateTaskAction(formData: FormData) {
   const assignee_ids = formData.getAll('assignee_ids') as string[]
 
   const supabase = await createClient()
-  await supabase
+  const { error: updateError } = await supabase
     .from('tasks')
     .update({
       activity,
@@ -39,12 +39,19 @@ async function updateTaskAction(formData: FormData) {
       is_translation,
     })
     .eq('id', id)
+  if (updateError) throw new Error(updateError.message)
 
-  await supabase.from('task_assignees').delete().eq('task_id', id)
+  const { error: deleteAssigneesError } = await supabase
+    .from('task_assignees')
+    .delete()
+    .eq('task_id', id)
+  if (deleteAssigneesError) throw new Error(deleteAssigneesError.message)
+
   if (assignee_ids.length > 0) {
-    await supabase
+    const { error: insertAssigneesError } = await supabase
       .from('task_assignees')
       .insert(assignee_ids.map((person_id) => ({ task_id: id, person_id })))
+    if (insertAssigneesError) throw new Error(insertAssigneesError.message)
   }
 
   revalidatePath(`/projects/${project_id}`)

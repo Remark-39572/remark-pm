@@ -24,7 +24,7 @@ async function createTaskAction(formData: FormData) {
   const assignee_ids = formData.getAll('assignee_ids') as string[]
 
   const supabase = await createClient()
-  const { data: inserted } = await supabase
+  const { data: inserted, error: insertError } = await supabase
     .from('tasks')
     .insert({
       project_id,
@@ -40,14 +40,18 @@ async function createTaskAction(formData: FormData) {
     })
     .select('id')
     .single()
+  if (insertError) throw new Error(insertError.message)
 
   if (inserted && assignee_ids.length > 0) {
-    await supabase.from('task_assignees').insert(
-      assignee_ids.map((person_id) => ({
-        task_id: inserted.id,
-        person_id,
-      })),
-    )
+    const { error: assigneesError } = await supabase
+      .from('task_assignees')
+      .insert(
+        assignee_ids.map((person_id) => ({
+          task_id: inserted.id,
+          person_id,
+        })),
+      )
+    if (assigneesError) throw new Error(assigneesError.message)
   }
 
   revalidatePath(`/projects/${project_id}`)

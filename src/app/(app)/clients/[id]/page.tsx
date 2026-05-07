@@ -27,7 +27,7 @@ async function updateClientAction(formData: FormData) {
   const assignee_ids = formData.getAll('assignee_ids') as string[]
 
   const supabase = await createClient()
-  await supabase
+  const { error: updateError } = await supabase
     .from('clients')
     .update({
       name,
@@ -40,12 +40,19 @@ async function updateClientAction(formData: FormData) {
       note,
     })
     .eq('id', id)
+  if (updateError) throw new Error(updateError.message)
 
-  await supabase.from('client_assignees').delete().eq('client_id', id)
+  const { error: deleteAssigneesError } = await supabase
+    .from('client_assignees')
+    .delete()
+    .eq('client_id', id)
+  if (deleteAssigneesError) throw new Error(deleteAssigneesError.message)
+
   if (assignee_ids.length > 0) {
-    await supabase
+    const { error: insertAssigneesError } = await supabase
       .from('client_assignees')
       .insert(assignee_ids.map((person_id) => ({ client_id: id, person_id })))
+    if (insertAssigneesError) throw new Error(insertAssigneesError.message)
   }
 
   revalidatePath('/clients')
@@ -62,20 +69,28 @@ async function deleteClientAction(formData: FormData) {
   const supabase = await createClient()
   const now = new Date().toISOString()
   // Cascade soft-delete: client + its projects + their tasks
-  await supabase.from('clients').update({ deleted_at: now }).eq('id', id)
-  const { data: childProjects } = await supabase
+  const { error: clientError } = await supabase
+    .from('clients')
+    .update({ deleted_at: now })
+    .eq('id', id)
+  if (clientError) throw new Error(clientError.message)
+
+  const { data: childProjects, error: projectsError } = await supabase
     .from('projects')
     .update({ deleted_at: now })
     .eq('client_id', id)
     .is('deleted_at', null)
     .select('id')
+  if (projectsError) throw new Error(projectsError.message)
+
   const projectIds = (childProjects ?? []).map((p) => p.id as string)
   if (projectIds.length > 0) {
-    await supabase
+    const { error: tasksError } = await supabase
       .from('tasks')
       .update({ deleted_at: now })
       .in('project_id', projectIds)
       .is('deleted_at', null)
+    if (tasksError) throw new Error(tasksError.message)
   }
 
   revalidatePath('/clients')

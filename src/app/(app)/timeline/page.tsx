@@ -20,10 +20,11 @@ async function updateTaskDatesAction(
     .select('project_id')
     .eq('id', taskId)
     .maybeSingle()
-  await supabase
+  const { error } = await supabase
     .from('tasks')
     .update({ start_date: start, due_date: end })
     .eq('id', taskId)
+  if (error) throw new Error(error.message)
   if (task?.project_id) {
     revalidatePath(`/projects/${task.project_id}`)
     revalidatePath(`/projects/${task.project_id}/timeline`)

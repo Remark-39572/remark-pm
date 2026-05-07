@@ -21,7 +21,11 @@ async function toggleTaskCompletedAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
-  await supabase.from('tasks').update({ completed: !completed }).eq('id', id)
+  const { error } = await supabase
+    .from('tasks')
+    .update({ completed: !completed })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
   revalidatePath(`/projects/${project_id}`)
   revalidateAggregates()
 }
@@ -33,10 +37,11 @@ async function deleteTaskAction(formData: FormData) {
   if (!id) return
 
   const supabase = await createClient()
-  await supabase
+  const { error } = await supabase
     .from('tasks')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
+  if (error) throw new Error(error.message)
   revalidatePath(`/projects/${project_id}`)
   revalidateAggregates()
 }
@@ -58,7 +63,7 @@ async function updateProjectAction(formData: FormData) {
   const note = ((formData.get('note') as string) || '').trim() || null
 
   const supabase = await createClient()
-  await supabase
+  const { error } = await supabase
     .from('projects')
     .update({
       name,
@@ -70,6 +75,7 @@ async function updateProjectAction(formData: FormData) {
       note,
     })
     .eq('id', id)
+  if (error) throw new Error(error.message)
 
   revalidatePath(`/projects/${id}`)
   revalidateAggregates()
@@ -84,12 +90,18 @@ async function deleteProjectAction(formData: FormData) {
   const supabase = await createClient()
   const now = new Date().toISOString()
   // Cascade soft-delete: project + its tasks
-  await supabase.from('projects').update({ deleted_at: now }).eq('id', id)
-  await supabase
+  const { error: projectError } = await supabase
+    .from('projects')
+    .update({ deleted_at: now })
+    .eq('id', id)
+  if (projectError) throw new Error(projectError.message)
+
+  const { error: tasksError } = await supabase
     .from('tasks')
     .update({ deleted_at: now })
     .eq('project_id', id)
     .is('deleted_at', null)
+  if (tasksError) throw new Error(tasksError.message)
 
   revalidateAggregates()
   redirect('/projects')
