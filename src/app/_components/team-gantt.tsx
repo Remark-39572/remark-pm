@@ -599,7 +599,7 @@ export default function TeamGantt({
               className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50"
               style={{ height: 60 }}
             >
-              <div className="grid h-full grid-cols-[28px_1fr_120px_60px] items-center gap-2 px-3 text-xs font-medium uppercase tracking-wider text-slate-500">
+              <div className="grid h-full grid-cols-[44px_1fr_120px_60px] items-center gap-3 px-3 text-xs font-medium uppercase tracking-wider text-slate-500">
                 <div className="text-center">Done</div>
                 <div>Task</div>
                 <div>Assigned</div>
@@ -640,18 +640,18 @@ export default function TeamGantt({
                     {projectGroup.tasks.map((t) => (
                       <div
                         key={t.id}
-                        className="grid grid-cols-[28px_1fr_120px_60px] items-center gap-2 border-b border-slate-100 px-3 hover:bg-slate-50"
+                        className="grid grid-cols-[44px_1fr_120px_60px] items-center gap-3 border-b border-slate-100 px-3 hover:bg-slate-50"
                         style={{ height: ROW_HEIGHT }}
                       >
-                        {onToggleCompleted ? (
-                          <GanttTaskCheckbox
-                            taskId={t.id}
-                            completed={t.completed}
-                            action={onToggleCompleted}
-                          />
-                        ) : (
-                          <span />
-                        )}
+                        <div className="flex justify-center">
+                          {onToggleCompleted ? (
+                            <GanttTaskCheckbox
+                              taskId={t.id}
+                              completed={t.completed}
+                              action={onToggleCompleted}
+                            />
+                          ) : null}
+                        </div>
                         <Link
                           href={`/projects/${t.projectId}/tasks/${t.id}/edit`}
                           className={`truncate pr-2 text-sm ${
