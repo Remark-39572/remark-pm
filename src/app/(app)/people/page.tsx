@@ -11,7 +11,9 @@ async function updatePersonAction(formData: FormData) {
   const id = formData.get('id') as string
   const name = ((formData.get('name') as string) || '').trim() || null
   const role = formData.get('role') as Role
-  const is_resource = formData.get('is_resource') === 'on'
+  // The form posts both a hidden "false" and (if checked) a checkbox "true"
+  // under the same name. If "true" is present, the checkbox was checked.
+  const is_resource = formData.getAll('is_resource').includes('true')
 
   if (!id) return
 
@@ -177,10 +179,12 @@ function PersonEditableRow({
         </select>
       </td>
       <td className="px-4 py-3">
+        <input form={formId} type="hidden" name="is_resource" value="false" />
         <input
           form={formId}
           type="checkbox"
           name="is_resource"
+          value="true"
           defaultChecked={person.is_resource}
         />
       </td>
