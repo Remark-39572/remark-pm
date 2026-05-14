@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { revalidateAggregates } from '@/lib/revalidate'
-import { reorderClients } from '@/lib/actions/reorder'
-import SortableClientsTable from './sortable-clients-table'
+import ClientRow from './client-row'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,26 +43,6 @@ export default async function ClientsPage() {
     .order('sort_order', { ascending: true })
     .order('name', { ascending: true })
 
-  const rows = (clients ?? []).map((c) => ({
-    id: c.id as string,
-    code: (c.code as string | null) ?? null,
-    name: c.name as string,
-    contact_name: (c.contact_name as string | null) ?? null,
-    contact_email: (c.contact_email as string | null) ?? null,
-    assignees: (c.client_assignees ?? [])
-      .map(
-        (a: {
-          person: { id: string; name: string | null; email: string } | null
-        }) => a.person,
-      )
-      .filter(Boolean) as {
-      id: string
-      name: string | null
-      email: string
-    }[],
-    projectCount: (c.projects ?? []).length,
-  }))
-
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-8 flex items-center justify-between">
@@ -72,8 +51,8 @@ export default async function ClientsPage() {
             Clients
           </h1>
           <p className="mt-1 text-base text-slate-500">
-            Drag the handle on the left to reorder. Click a row to see contact
-            details and assigned team.
+            Companies you work with — click a row to see contact details and
+            assigned team. Reorder from the Timeline tab.
           </p>
         </div>
       </div>
@@ -96,8 +75,50 @@ export default async function ClientsPage() {
         </form>
       </div>
 
-      {rows.length > 0 ? (
-        <SortableClientsTable clients={rows} reorderAction={reorderClients} />
+      {clients && clients.length > 0 ? (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-base">
+            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+              <tr>
+                <th className="px-5 py-3 font-medium">Code</th>
+                <th className="px-5 py-3 font-medium">Client</th>
+                <th className="px-5 py-3 font-medium">Contact</th>
+                <th className="px-5 py-3 font-medium">Team</th>
+                <th className="px-5 py-3 font-medium">Projects</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {clients.map((c) => (
+                <ClientRow
+                  key={c.id}
+                  client={{
+                    id: c.id as string,
+                    code: (c.code as string | null) ?? null,
+                    name: c.name as string,
+                    contact_name: (c.contact_name as string | null) ?? null,
+                    contact_email: (c.contact_email as string | null) ?? null,
+                    assignees: (c.client_assignees ?? [])
+                      .map(
+                        (a: {
+                          person: {
+                            id: string
+                            name: string | null
+                            email: string
+                          } | null
+                        }) => a.person,
+                      )
+                      .filter(Boolean) as {
+                      id: string
+                      name: string | null
+                      email: string
+                    }[],
+                    projectCount: (c.projects ?? []).length,
+                  }}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-base text-slate-500">
           No clients yet. Add one above to get started.

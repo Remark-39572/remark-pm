@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { reorderClients } from '@/lib/actions/reorder'
+import { reorderClients, reorderPeople } from '@/lib/actions/reorder'
 import TeamGantt, {
   type GanttTaskRow,
   type GanttPerson,
@@ -164,6 +164,7 @@ export default async function GlobalTimelinePage() {
         onTaskDateChange={updateTaskDatesAction}
         onToggleCompleted={toggleTaskCompletedAction}
         onReorderClients={reorderClients}
+        onReorderPeople={reorderPeople}
       />
     </div>
   )

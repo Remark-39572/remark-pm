@@ -93,6 +93,7 @@ type Props = {
     nextCompleted: boolean,
   ) => Promise<void>
   onReorderClients?: (orderedClientIds: string[]) => Promise<void>
+  onReorderPeople?: (orderedPersonIds: string[]) => Promise<void>
 }
 
 const LEFT_PANE_DEFAULT = 420
@@ -118,6 +119,7 @@ export default function TeamGantt({
   onTaskDateChange,
   onToggleCompleted,
   onReorderClients,
+  onReorderPeople,
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('Day')
   const [hideCompleted, setHideCompleted] = useState(true)
@@ -376,6 +378,45 @@ export default function TeamGantt({
     setOrderOverride(next)
     startTransition(() => {
       void onReorderClients(next)
+    })
+  }
+
+  // Optimistic people order for in-gantt drag-and-drop on the Workload section.
+  const [peopleOrderOverride, setPeopleOrderOverride] = useState<
+    string[] | null
+  >(null)
+  const peopleIds = useMemo(
+    () => resourcePeople.map((p) => p.id),
+    [resourcePeople],
+  )
+  useEffect(() => {
+    if (!peopleOrderOverride) return
+    const a = new Set(peopleIds)
+    const b = new Set(peopleOrderOverride)
+    const sameSet = a.size === b.size && [...a].every((id) => b.has(id))
+    if (!sameSet) setPeopleOrderOverride(null)
+  }, [peopleIds, peopleOrderOverride])
+  const displayPeople = useMemo(() => {
+    if (!peopleOrderOverride) return resourcePeople
+    const idx = new Map(peopleOrderOverride.map((id, i) => [id, i]))
+    return [...resourcePeople].sort(
+      (a, b) =>
+        (idx.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+        (idx.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    )
+  }, [resourcePeople, peopleOrderOverride])
+  function handlePeopleDragEnd(event: DragEndEvent) {
+    if (!onReorderPeople) return
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const ids = displayPeople.map((p) => p.id)
+    const oldIndex = ids.indexOf(active.id as string)
+    const newIndex = ids.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    const next = arrayMove(ids, oldIndex, newIndex)
+    setPeopleOrderOverride(next)
+    startTransition(() => {
+      void onReorderPeople(next)
     })
   }
 
@@ -835,7 +876,7 @@ export default function TeamGantt({
             </DndContext>
 
             {/* Heatmap left labels */}
-            {heatmap && resourcePeople.length > 0 && (
+            {heatmap && displayPeople.length > 0 && (
               <div className="border-t-2 border-slate-300">
                 <div
                   className="flex items-center bg-slate-100 px-4 text-xs font-semibold uppercase tracking-wider text-slate-600"
@@ -843,16 +884,35 @@ export default function TeamGantt({
                 >
                   Workload
                 </div>
-                {resourcePeople.map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center gap-2 border-b border-slate-100 px-4 text-sm text-slate-700"
-                    style={{ height: HEATMAP_ROW_HEIGHT }}
+                <DndContext
+                  sensors={sortableSensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handlePeopleDragEnd}
+                >
+                  <SortableContext
+                    items={displayPeople.map((p) => p.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <Avatar person={p} size={20} />
-                    {p.name ?? p.email.split('@')[0]}
-                  </div>
-                ))}
+                    {displayPeople.map((p) => (
+                      <SortablePersonRow
+                        key={p.id}
+                        personId={p.id}
+                        canReorder={Boolean(onReorderPeople)}
+                      >
+                        {(dragHandle) => (
+                          <div
+                            className="flex items-center gap-2 border-b border-slate-100 px-4 text-sm text-slate-700"
+                            style={{ height: HEATMAP_ROW_HEIGHT }}
+                          >
+                            {dragHandle}
+                            <Avatar person={p} size={20} />
+                            {p.name ?? p.email.split('@')[0]}
+                          </div>
+                        )}
+                      </SortablePersonRow>
+                    ))}
+                  </SortableContext>
+                </DndContext>
               </div>
             )}
           </div>
@@ -1020,7 +1080,7 @@ export default function TeamGantt({
               ))}
 
               {/* Heatmap */}
-              {heatmap && resourcePeople.length > 0 && (
+              {heatmap && displayPeople.length > 0 && (
                 <div className="border-t-2 border-slate-300">
                   <div
                     className="bg-slate-100"
@@ -1036,7 +1096,7 @@ export default function TeamGantt({
                       muted
                     />
                   </div>
-                  {resourcePeople.map((p) => (
+                  {displayPeople.map((p) => (
                     <div
                       key={p.id}
                       className="relative border-b border-slate-100"
@@ -1111,6 +1171,59 @@ function SortableClientBlock({
       {...listeners}
       onClick={(e) => e.stopPropagation()}
       className="-ml-1 mr-1 cursor-grab touch-none rounded p-0.5 text-slate-500 hover:bg-white/60 hover:text-slate-900 active:cursor-grabbing"
+    >
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <circle cx="4" cy="3" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="3" r="1.2" fill="currentColor" />
+        <circle cx="4" cy="7" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="7" r="1.2" fill="currentColor" />
+        <circle cx="4" cy="11" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="11" r="1.2" fill="currentColor" />
+      </svg>
+    </button>
+  ) : null
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children(handle)}
+    </div>
+  )
+}
+
+function SortablePersonRow({
+  personId,
+  canReorder,
+  children,
+}: {
+  personId: string
+  canReorder: boolean
+  children: (dragHandle: React.ReactNode) => React.ReactNode
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: personId, disabled: !canReorder })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 30 : undefined,
+  }
+
+  const handle = canReorder ? (
+    <button
+      type="button"
+      aria-label="Drag person to reorder"
+      {...attributes}
+      {...listeners}
+      onClick={(e) => e.stopPropagation()}
+      className="cursor-grab touch-none rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 active:cursor-grabbing"
     >
       <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
         <circle cx="4" cy="3" r="1.2" fill="currentColor" />
