@@ -1,0 +1,1430 @@
+{
+  "summary": {
+    "total_tasks": 87,
+    "clients": [
+      {
+        "name": "Chato",
+        "code": "051",
+        "task_count": 6
+      },
+      {
+        "name": "JIRCAS",
+        "code": "055",
+        "task_count": 1
+      },
+      {
+        "name": "Japan School",
+        "code": "New",
+        "task_count": 1
+      },
+      {
+        "name": "KK Leaf",
+        "code": "022",
+        "task_count": 1
+      },
+      {
+        "name": "Kamoseni",
+        "code": "047",
+        "task_count": 7
+      },
+      {
+        "name": "Meiji",
+        "code": "053",
+        "task_count": 8
+      },
+      {
+        "name": "Mikihouse",
+        "code": "050",
+        "task_count": 12
+      },
+      {
+        "name": "Nafias",
+        "code": "New",
+        "task_count": 2
+      },
+      {
+        "name": "Natto",
+        "code": "056",
+        "task_count": 3
+      },
+      {
+        "name": "Nift",
+        "code": "New",
+        "task_count": 3
+      },
+      {
+        "name": "Nippon.com",
+        "code": "New",
+        "task_count": 9
+      },
+      {
+        "name": "Remark",
+        "code": "internal",
+        "task_count": 10
+      },
+      {
+        "name": "S&B",
+        "code": "020",
+        "task_count": 3
+      },
+      {
+        "name": "ToyoGakuso",
+        "code": "052",
+        "task_count": 4
+      },
+      {
+        "name": "Y'sMD",
+        "code": "048",
+        "task_count": 17
+      }
+    ],
+    "people": [
+      "Ash Geary",
+      "Colin Johnson",
+      "Kanae Omote",
+      "Lena Saito",
+      "Megumi Suzuki",
+      "Michelle Lopez",
+      "Mihoko Imai",
+      "Soichi Toda"
+    ]
+  },
+  "tasks": [
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Logo delivery",
+      "deliverable": "AI file",
+      "start_date": "2026-11-10",
+      "due_date": "2026-11-21",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "10/19 meeting scheduled.",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Global site scope establishment",
+      "deliverable": "Global site scope/proposal",
+      "start_date": "2026-10-28",
+      "due_date": "2026-10-28",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": true,
+      "note": "Meeting on 11/19 and follow up meeting on 11/26 to rescope the work and re-quote.",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Global site",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Shopline?  Global site scope needs to be defined. Ideal updated brand launch in Nov.2025",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Japanese: UX/UI structure recommendation",
+      "deliverable": "wireframe",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Establish graphics style/manner",
+      "deliverable": "add images to PDP",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "discuss the delivery format at a later date.",
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Japanese: Create concept presentation",
+      "deliverable": "Concept image of key website pages",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Kamoseni",
+      "code": "047",
+      "activity": "Visual Desgn - Page Design  Direction",
+      "deliverable": null,
+      "start_date": "2026-04-28",
+      "due_date": "2026-04-28",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Target JP site refreshment/launch is in May/2026.",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "rework on the FMB and narrative",
+      "deliverable": null,
+      "start_date": "2026-04-06",
+      "due_date": "2026-04-15",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Client approval on FMB",
+      "deliverable": null,
+      "start_date": "2026-04-15",
+      "due_date": "2026-04-22",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Client meeting 4/22 - 4/24 as target",
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Client apporval/Finalize narrative",
+      "deliverable": null,
+      "start_date": "2026-04-15",
+      "due_date": "2026-04-22",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Design mood board",
+      "deliverable": null,
+      "start_date": "2026-05-01",
+      "due_date": "2026-05-14",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Client approval on the mood board",
+      "deliverable": null,
+      "start_date": "2026-05-14",
+      "due_date": "2026-05-23",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Client meeting 5/18 - 5/22 as target",
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Draft site design direction of main page",
+      "deliverable": "Figma",
+      "start_date": "2026-05-29",
+      "due_date": "2026-06-12",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Review draft of site design",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Client approval on design direction",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Draft other site design",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Review draft of other site design",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Client approval on design",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "6/1 website up (development complete) New target completion date is TBD. Client meeting 6/24 - 6/26 as target",
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Mikihouse",
+      "code": "050",
+      "activity": "Create Brand guideline",
+      "deliverable": "Desgin spec and asset package",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Get approval on design",
+      "deliverable": null,
+      "start_date": "2026-02-27",
+      "due_date": "2026-04-17",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Soichi Toda"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Complete development of the site",
+      "deliverable": null,
+      "start_date": "2026-03-06",
+      "due_date": "2026-04-27",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "QA of the site and finalization",
+      "deliverable": null,
+      "start_date": "2026-03-27",
+      "due_date": "2026-04-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/Channel setup",
+      "deliverable": "Google Analytic setup",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/Channel setup",
+      "deliverable": "Google shopping/Merchant Center account",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/Channel setup",
+      "deliverable": "Setup review notes/short launch checklist",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/D2C readiness",
+      "deliverable": "Prioritized punch list",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/SEO advisory",
+      "deliverable": "One-page requirement checklist",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/SEO advisory",
+      "deliverable": "Monthly content priority list/review notes",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/Amazon, Google shopping",
+      "deliverable": "Readiness checklist/review notes",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Monthly Support/Retention, Email",
+      "deliverable": "Flow requirements/review notes",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Flyer design",
+      "deliverable": "Flyer content ideas",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Flyer design",
+      "deliverable": "Flyer design for print",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Research affiliate candidates",
+      "deliverable": "Affiliate attack list",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Provide review collection methods",
+      "deliverable": "review collection methods (Doc)",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "Lecture how Google/Meta Ads work",
+      "deliverable": "Online lecture",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Y'sMD",
+      "code": "048",
+      "activity": "CRM: Provide review/advise the Email drafts",
+      "deliverable": "Review/advise the Email drafts",
+      "start_date": "2026-04-17",
+      "due_date": "2026-05-22",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "CRM\\_MasterList",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "ToyoGakuso",
+      "code": "052",
+      "activity": "Review his suspended webiste",
+      "deliverable": null,
+      "start_date": "2026-04-28",
+      "due_date": "2026-04-28",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Open month - 10 month project",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "ToyoGakuso",
+      "code": "052",
+      "activity": "Content feedback/Refinement",
+      "deliverable": "Content feedback notes",
+      "start_date": "2026-06-26",
+      "due_date": "2026-06-26",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "?",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "ToyoGakuso",
+      "code": "052",
+      "activity": "Content feedback/Refinement",
+      "deliverable": "Photo review/Suggestions",
+      "start_date": "2026-06-26",
+      "due_date": "2026-06-26",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "?",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "ToyoGakuso",
+      "code": "052",
+      "activity": "Next step planning",
+      "deliverable": null,
+      "start_date": "2026-06-26",
+      "due_date": "2026-06-26",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Natto",
+      "code": "056",
+      "activity": "Instagram",
+      "deliverable": "4 sets of posts/ads",
+      "start_date": "2026-04-24",
+      "due_date": "2026-04-24",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Michelle Lopez"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Natto",
+      "code": "056",
+      "activity": "LinkedIn Post",
+      "deliverable": "2 posts for B2B",
+      "start_date": "2026-04-24",
+      "due_date": "2026-04-24",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Michelle Lopez"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Natto",
+      "code": "056",
+      "activity": "Package design update",
+      "deliverable": "Ai file",
+      "start_date": "2026-02-26",
+      "due_date": "2026-04-03",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "No need to hit 3/11 and will be discuss after 3/15.  Matoba CEO requests to use AI with darker bean color",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "JIRCAS",
+      "code": "055",
+      "activity": "Get approval on design",
+      "deliverable": "Web design (FIGMA), Design editable components",
+      "start_date": "2026-02-20",
+      "due_date": "2026-04-13",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "2/24 as client meeting .",
+      "assignees": [
+        "Megumi Suzuki"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Develop design in Hubspot",
+      "deliverable": "First find developer to build the module -\\> work internally if we have a right theme?",
+      "start_date": "2026-01-15",
+      "due_date": "2026-01-15",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Separete project from Webinar Need developer.",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "See if we can use the existing theme",
+      "deliverable": "Upwork definition",
+      "start_date": "2026-03-30",
+      "due_date": "2026-04-03",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Sizzle reel creation",
+      "deliverable": null,
+      "start_date": "2026-01-30",
+      "due_date": "2026-01-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "webinar content",
+      "deliverable": "presentation/Zoom webinar acct",
+      "start_date": "2026-01-05",
+      "due_date": "2026-01-05",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": true,
+      "note": "15 slides/1 hour session target",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Create LP for webinar",
+      "deliverable": null,
+      "start_date": "2026-02-09",
+      "due_date": "2026-02-09",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Mihoko Imai"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Create Thank you page",
+      "deliverable": null,
+      "start_date": "2026-02-09",
+      "due_date": "2026-02-09",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Mihoko Imai"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Set up Email promotion",
+      "deliverable": "Newsletter/Email",
+      "start_date": "2026-01-19",
+      "due_date": "2026-01-19",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "and 2/13 and 2/24 follow up email",
+      "assignees": [
+        "Mihoko Imai"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Set up FB.Linkedin Ad",
+      "deliverable": null,
+      "start_date": "2026-02-09",
+      "due_date": "2026-02-09",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Target to run from 2/16",
+      "assignees": [
+        "Kanae Omote"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Create and set up Survey",
+      "deliverable": "Google form",
+      "start_date": "2026-02-01",
+      "due_date": "2026-02-01",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": true,
+      "note": null,
+      "assignees": [
+        "Mihoko Imai"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Remark",
+      "code": "internal",
+      "activity": "Marketing promotion",
+      "deliverable": "Online Seminar",
+      "start_date": "2026-01-13",
+      "due_date": "2026-01-13",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Determine the date after website development schedule",
+      "assignees": [
+        "Mihoko Imai"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Create web design proposal",
+      "deliverable": "Deck (FY25 web design proposal)",
+      "start_date": "2026-04-17",
+      "due_date": "2026-04-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "4/end meeting with Nippon (bid process)",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Plan social media management",
+      "deliverable": "Management team/structure",
+      "start_date": "2026-04-01",
+      "due_date": "2026-04-20",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "For the activity in May",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Design creatives for Social media",
+      "deliverable": "Design/creatives",
+      "start_date": "2026-04-20",
+      "due_date": "2026-04-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "4/16 meeting with Nippon about Social media, 4/end to talk about Web design",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Run Social media",
+      "deliverable": "Social media post",
+      "start_date": "2026-05-01",
+      "due_date": "2026-05-01",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Create FY25 MKT/Web proposal",
+      "deliverable": "MKT/Web proposal for bidding",
+      "start_date": "2026-06-01",
+      "due_date": "2026-06-01",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Regular meeting/every 2 wks",
+      "deliverable": null,
+      "start_date": "2026-07-15",
+      "due_date": "2026-07-15",
+      "is_meeting": true,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Starting from 7/15",
+      "assignees": [],
+      "no_dates": false
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Improvement in English team publishing",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "500k/month Attending English team meeting, 2 times/month",
+      "assignees": [
+        "Ash Geary",
+        "Lena Saito"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Start and implement a structure",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary",
+        "Lena Saito"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Nippon.com",
+      "code": "New",
+      "activity": "Topic Cluster Guidline",
+      "deliverable": null,
+      "start_date": "2026-08-12",
+      "due_date": "2026-08-12",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Research packaging desgn A/B Testing",
+      "deliverable": "for survey (1st round)",
+      "start_date": "2026-04-24",
+      "due_date": "2026-04-24",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Research design for package design A/B testing (Remark) Online test on C \\&D and also against M.Blend.",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Analysis of Research design",
+      "deliverable": "Agreed research packaging design",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Packaging design",
+      "deliverable": "Printable design data",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "[tbd]",
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Update packaging based on testing outcome",
+      "deliverable": "Updated design for 2nd round",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Packaging desgn A/B Testing",
+      "deliverable": "for survey (2nd round)",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Conduct package design A/B testing (Remark)",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Analysis of packaging design",
+      "deliverable": "Final packaging design",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "Update packaging based on testing outcome",
+      "deliverable": "Agreed final packaging design data",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Due by early fall to meet launch in winter of 2026.",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Meiji",
+      "code": "053",
+      "activity": "MKT support",
+      "deliverable": "Communication with Meiji US",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Monthly service opportunity?",
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "KK Leaf",
+      "code": "022",
+      "activity": "Add Blog section to website",
+      "deliverable": null,
+      "start_date": "2026-05-02",
+      "due_date": "2026-05-02",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Hold off for now till Lena becomes available.",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Japan School",
+      "code": "New",
+      "activity": "SOW Agreement",
+      "deliverable": null,
+      "start_date": "2026-12-22",
+      "due_date": "2026-12-26",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "To confirm the number of pages. Brand guideline, logo done by Client and web design only. \\# of pages : 19 pages? JS existing site referenced",
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Nafias",
+      "code": "New",
+      "activity": "Product/Company SWOT analysis",
+      "deliverable": "Workshop",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Nafias",
+      "code": "New",
+      "activity": "Propose Market expansion proposal",
+      "deliverable": "Proposal deck",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "For inboud and oversea market",
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "Nift",
+      "code": "New",
+      "activity": "send quote for Website",
+      "deliverable": "Price estimate",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Nift",
+      "code": "New",
+      "activity": "Convert PPT to Web by ChatGPT",
+      "deliverable": "Web design draft",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Nift",
+      "code": "New",
+      "activity": "Design Web in Wix",
+      "deliverable": "Wix file (web design) in English",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Brand/Marketing proopsal for Nijimu project",
+      "deliverable": "Deck (propoasls)",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Nijimu and other DTC product project",
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Quote for Logo design",
+      "deliverable": "Quote",
+      "start_date": "2026-08-13",
+      "due_date": "2026-08-19",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "Estimate the amount after the meeting on 8/13. Budget does not meet our expectation",
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Logo design",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Set the menu",
+      "deliverable": "SOW",
+      "start_date": "2026-03-10",
+      "due_date": "2026-04-03",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "scope of work clarification",
+      "assignees": [
+        "Lena Saito"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Design Chato Logo",
+      "deliverable": "2027 50th anniversary logo",
+      "start_date": "2026-04-01",
+      "due_date": "2026-06-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "Chato",
+      "code": "051",
+      "activity": "Create B2C Strategy",
+      "deliverable": "Basic narrative, visual design for B2C",
+      "start_date": "2026-04-01",
+      "due_date": "2026-06-30",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Ash Geary"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "S&B",
+      "code": "020",
+      "activity": "Curry pouch packaging design/finalization",
+      "deliverable": "Final design/Update product name design",
+      "start_date": "2026-06-25",
+      "due_date": "2026-03-05",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": "11/6 management design review meeting --\\> Updated to 12/4 --\\> Updated to 1/15/2026.",
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": false
+    },
+    {
+      "client": "S&B",
+      "code": "020",
+      "activity": "Propose overall overseas MKT strategy",
+      "deliverable": null,
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": true,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [],
+      "no_dates": true
+    },
+    {
+      "client": "S&B",
+      "code": "020",
+      "activity": "US experience/brain storming session",
+      "deliverable": "Deck (presentation)",
+      "start_date": "2026-01-01",
+      "due_date": "2026-12-31",
+      "is_meeting": false,
+      "is_onsite": false,
+      "is_translation": false,
+      "note": null,
+      "assignees": [
+        "Colin Johnson"
+      ],
+      "no_dates": true
+    }
+  ]
+}
