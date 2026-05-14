@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { revalidateAggregates } from '@/lib/revalidate'
-import ClientRow from './client-row'
-
+import SortableClientsTable from './sortable-clients-table'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,15 +12,35 @@ async function createClientAction(formData: FormData) {
   if (!name) return
 
   const supabase = await createClient()
+  // Place new client at the end of the order
+  const { data: maxRow } = await supabase
+    .from('clients')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const nextOrder = (maxRow?.sort_order ?? 0) + 10
+
   const { data, error } = await supabase
     .from('clients')
-    .insert({ name })
+    .insert({ name, sort_order: nextOrder })
     .select('id')
     .single()
   if (error) throw new Error(error.message)
   revalidatePath('/clients')
   revalidateAggregates()
   if (data?.id) redirect(`/clients/${data.id}`)
+}
+
+async function reorderClientsAction(orderedIds: string[]) {
+  'use server'
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('reorder_clients', {
+    ordered_ids: orderedIds,
+  })
+  if (error) throw new Error(error.message)
+  revalidatePath('/clients')
+  revalidatePath('/timeline')
 }
 
 export default async function ClientsPage() {
@@ -32,7 +51,28 @@ export default async function ClientsPage() {
       '*, client_assignees(person:people(id, name, email)), projects:projects(id)',
     )
     .is('deleted_at', null)
+    .order('sort_order', { ascending: true })
     .order('name', { ascending: true })
+
+  const rows = (clients ?? []).map((c) => ({
+    id: c.id as string,
+    code: (c.code as string | null) ?? null,
+    name: c.name as string,
+    contact_name: (c.contact_name as string | null) ?? null,
+    contact_email: (c.contact_email as string | null) ?? null,
+    assignees: (c.client_assignees ?? [])
+      .map(
+        (a: {
+          person: { id: string; name: string | null; email: string } | null
+        }) => a.person,
+      )
+      .filter(Boolean) as {
+      id: string
+      name: string | null
+      email: string
+    }[],
+    projectCount: (c.projects ?? []).length,
+  }))
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -42,8 +82,8 @@ export default async function ClientsPage() {
             Clients
           </h1>
           <p className="mt-1 text-base text-slate-500">
-            Companies you work with — click a row to see contact details and
-            assigned team.
+            Drag the handle on the left to reorder. Click a row to see contact
+            details and assigned team.
           </p>
         </div>
       </div>
@@ -66,50 +106,8 @@ export default async function ClientsPage() {
         </form>
       </div>
 
-      {clients && clients.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-base">
-            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
-              <tr>
-                <th className="px-5 py-3 font-medium">Code</th>
-                <th className="px-5 py-3 font-medium">Client</th>
-                <th className="px-5 py-3 font-medium">Contact</th>
-                <th className="px-5 py-3 font-medium">Team</th>
-                <th className="px-5 py-3 font-medium">Projects</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {clients.map((c) => (
-                <ClientRow
-                  key={c.id}
-                  client={{
-                    id: c.id as string,
-                    code: (c.code as string | null) ?? null,
-                    name: c.name as string,
-                    contact_name: (c.contact_name as string | null) ?? null,
-                    contact_email: (c.contact_email as string | null) ?? null,
-                    assignees: (c.client_assignees ?? [])
-                      .map(
-                        (a: {
-                          person: {
-                            id: string
-                            name: string | null
-                            email: string
-                          } | null
-                        }) => a.person,
-                      )
-                      .filter(Boolean) as {
-                      id: string
-                      name: string | null
-                      email: string
-                    }[],
-                    projectCount: (c.projects ?? []).length,
-                  }}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {rows.length > 0 ? (
+        <SortableClientsTable clients={rows} reorderAction={reorderClientsAction} />
       ) : (
         <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-base text-slate-500">
           No clients yet. Add one above to get started.

@@ -35,6 +35,7 @@ export default async function ResourcesPage({
     .select('id, name, email')
     .eq('is_resource', true)
     .is('deleted_at', null)
+    .order('sort_order', { ascending: true })
     .order('name', { ascending: true, nullsFirst: false })
 
   const { data: tasksRaw } = await supabase

@@ -36,6 +36,7 @@ export type GanttTaskRow = {
   clientId: string
   clientName: string
   clientCode: string | null
+  clientSortOrder?: number
 }
 
 type ViewMode = 'Day' | 'Week' | 'Month'
@@ -230,6 +231,7 @@ export default function TeamGantt({
     type ClientGroup = {
       clientName: string
       clientCode: string | null
+      sortOrder: number
       projects: Map<string, ProjectGroup>
     }
     const byClient = new Map<string, ClientGroup>()
@@ -237,6 +239,7 @@ export default function TeamGantt({
       const clientGroup = byClient.get(t.clientId) ?? {
         clientName: t.clientName,
         clientCode: t.clientCode,
+        sortOrder: t.clientSortOrder ?? Number.MAX_SAFE_INTEGER,
         projects: new Map<string, ProjectGroup>(),
       }
       const projectGroup = clientGroup.projects.get(t.projectId) ?? {
@@ -254,6 +257,7 @@ export default function TeamGantt({
         clientId,
         clientName: c.clientName,
         clientCode: c.clientCode,
+        sortOrder: c.sortOrder,
         projects: Array.from(c.projects.entries())
           .map(([projectId, p]) => ({
             projectId,
@@ -262,7 +266,10 @@ export default function TeamGantt({
           }))
           .sort((a, b) => cmp(a.projectName, b.projectName)),
       }))
-      .sort((a, b) => cmp(a.clientName, b.clientName))
+      .sort((a, b) => {
+        if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder
+        return cmp(a.clientName, b.clientName)
+      })
   }, [visible, groupByProject])
 
   // Heatmap: per-person, per-day task count

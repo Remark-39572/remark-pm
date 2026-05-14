@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateAggregates } from '@/lib/revalidate'
-import AvatarUpload from './avatar-upload'
-import { ROLE_LABELS, type Role } from '@/lib/types'
-
+import { type Role } from '@/lib/types'
+import SortablePeopleTable from './sortable-people-table'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,6 +40,18 @@ async function deletePersonAction(formData: FormData) {
   revalidateAggregates()
 }
 
+async function reorderPeopleAction(orderedIds: string[]) {
+  'use server'
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('reorder_people', {
+    ordered_ids: orderedIds,
+  })
+  if (error) throw new Error(error.message)
+  revalidatePath('/people')
+  revalidatePath('/timeline')
+  revalidatePath('/resources')
+}
+
 export default async function PeoplePage() {
   const supabase = await createClient()
 
@@ -55,8 +66,9 @@ export default async function PeoplePage() {
 
   const { data: people } = await supabase
     .from('people')
-    .select('*')
+    .select('id, email, name, role, is_resource, avatar_url')
     .is('deleted_at', null)
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
 
   return (
@@ -67,44 +79,24 @@ export default async function PeoplePage() {
         </h1>
         <p className="mt-1 text-base text-slate-500">
           {isAdminOrHigher
-            ? 'Edit roles and resource settings below.'
-            : 'View members.'}
+            ? 'Edit roles and resource settings below. Drag the handle on the left to reorder.'
+            : 'View members. Drag the handle on the left to reorder.'}
         </p>
       </div>
 
       {!isAdminOrHigher && (
         <p className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          You can view people but only admin/owner can edit.
+          You can view people but only admin/owner can edit roles.
         </p>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
-            <tr>
-              <th className="px-4 py-3 font-medium">Photo</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Role</th>
-              <th className="px-4 py-3 font-medium">Resource</th>
-              {isAdminOrHigher && (
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {people?.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50">
-                {isAdminOrHigher ? (
-                  <PersonEditableRow person={p} />
-                ) : (
-                  <PersonReadOnlyRow person={p} />
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <SortablePeopleTable
+        people={(people ?? []) as Parameters<typeof SortablePeopleTable>[0]['people']}
+        isAdminOrHigher={isAdminOrHigher}
+        updateAction={updatePersonAction}
+        deleteAction={deletePersonAction}
+        reorderAction={reorderPeopleAction}
+      />
 
       <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
         <p className="font-medium">How to add a new member</p>
@@ -116,121 +108,5 @@ export default async function PeoplePage() {
         </ol>
       </div>
     </div>
-  )
-}
-
-function PersonEditableRow({
-  person,
-}: {
-  person: {
-    id: string
-    email: string
-    name: string | null
-    role: Role
-    is_resource: boolean
-    avatar_url: string | null
-  }
-}) {
-  const formId = `person-form-${person.id}`
-  return (
-    <>
-      <td className="px-4 py-3">
-        <AvatarUpload
-          personId={person.id}
-          personEmail={person.email}
-          currentUrl={person.avatar_url}
-        />
-      </td>
-      <td className="px-4 py-3 text-slate-700">{person.email}</td>
-      <td className="px-4 py-3">
-        <form id={formId} action={updatePersonAction}>
-          <input type="hidden" name="id" value={person.id} />
-          <input
-            type="text"
-            name="name"
-            defaultValue={person.name ?? ''}
-            placeholder="—"
-            className="w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-900 focus:outline-none"
-          />
-        </form>
-      </td>
-      <td className="px-4 py-3">
-        <select
-          form={formId}
-          name="role"
-          defaultValue={person.role}
-          className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-900 focus:outline-none"
-        >
-          {Object.entries(ROLE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </select>
-      </td>
-      <td className="px-4 py-3">
-        <input
-          form={formId}
-          type="checkbox"
-          name="is_resource"
-          defaultChecked={person.is_resource}
-        />
-      </td>
-      <td className="px-4 py-3 text-right">
-        <button
-          form={formId}
-          type="submit"
-          className="mr-2 rounded bg-slate-900 px-2 py-1 text-xs font-medium text-white hover:bg-slate-800"
-        >
-          Save
-        </button>
-        <form action={deletePersonAction} className="inline">
-          <input type="hidden" name="id" value={person.id} />
-          <button
-            type="submit"
-            className="text-xs text-rose-600 hover:text-rose-800"
-          >
-            Remove
-          </button>
-        </form>
-      </td>
-    </>
-  )
-}
-
-function PersonReadOnlyRow({
-  person,
-}: {
-  person: {
-    email: string
-    name: string | null
-    role: Role
-    is_resource: boolean
-    avatar_url: string | null
-  }
-}) {
-  return (
-    <>
-      <td className="px-4 py-3">
-        {person.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={person.avatar_url}
-            alt={person.email}
-            className="h-9 w-9 rounded-full object-cover"
-          />
-        ) : (
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
-            {person.email[0].toUpperCase()}
-          </span>
-        )}
-      </td>
-      <td className="px-4 py-3 text-slate-700">{person.email}</td>
-      <td className="px-4 py-3 text-slate-900">{person.name ?? '—'}</td>
-      <td className="px-4 py-3 text-slate-700">{ROLE_LABELS[person.role]}</td>
-      <td className="px-4 py-3 text-slate-500">
-        {person.is_resource ? '✓' : '—'}
-      </td>
-    </>
   )
 }
