@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { revalidateAggregates } from '@/lib/revalidate'
+import { reorderClients } from '@/lib/actions/reorder'
 import SortableClientsTable from './sortable-clients-table'
 
 export const dynamic = 'force-dynamic'
@@ -30,17 +31,6 @@ async function createClientAction(formData: FormData) {
   revalidatePath('/clients')
   revalidateAggregates()
   if (data?.id) redirect(`/clients/${data.id}`)
-}
-
-async function reorderClientsAction(orderedIds: string[]) {
-  'use server'
-  const supabase = await createClient()
-  const { error } = await supabase.rpc('reorder_clients', {
-    ordered_ids: orderedIds,
-  })
-  if (error) throw new Error(error.message)
-  revalidatePath('/clients')
-  revalidatePath('/timeline')
 }
 
 export default async function ClientsPage() {
@@ -107,7 +97,7 @@ export default async function ClientsPage() {
       </div>
 
       {rows.length > 0 ? (
-        <SortableClientsTable clients={rows} reorderAction={reorderClientsAction} />
+        <SortableClientsTable clients={rows} reorderAction={reorderClients} />
       ) : (
         <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-base text-slate-500">
           No clients yet. Add one above to get started.

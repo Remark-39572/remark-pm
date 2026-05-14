@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import {
+  useCallback,
   useEffect,
   useMemo,
   useOptimistic,
@@ -9,6 +10,21 @@ import {
   useState,
   useTransition,
 } from 'react'
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import {
   PRIORITY_COLORS,
   PRIORITY_LABELS,
@@ -76,7 +92,13 @@ type Props = {
     taskId: string,
     nextCompleted: boolean,
   ) => Promise<void>
+  onReorderClients?: (orderedClientIds: string[]) => Promise<void>
 }
+
+const LEFT_PANE_DEFAULT = 420
+const LEFT_PANE_MIN = 220
+const LEFT_PANE_MAX = 900
+const LEFT_PANE_STORAGE_KEY = 'gantt:leftPaneWidth'
 
 type DragRef = {
   taskId: string
@@ -95,6 +117,7 @@ export default function TeamGantt({
   resourcePeople = [],
   onTaskDateChange,
   onToggleCompleted,
+  onReorderClients,
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('Day')
   const [hideCompleted, setHideCompleted] = useState(true)
@@ -105,6 +128,45 @@ export default function TeamGantt({
   const [filterPriority, setFilterPriority] = useState('')
   const [, startTransition] = useTransition()
   const dragRef = useRef<DragRef | null>(null)
+
+  // Resizable left pane (persisted to localStorage)
+  const [leftPaneWidth, setLeftPaneWidth] = useState<number>(LEFT_PANE_DEFAULT)
+  useEffect(() => {
+    const stored = window.localStorage.getItem(LEFT_PANE_STORAGE_KEY)
+    if (stored) {
+      const n = parseInt(stored, 10)
+      if (!isNaN(n) && n >= LEFT_PANE_MIN && n <= LEFT_PANE_MAX) {
+        setLeftPaneWidth(n)
+      }
+    }
+  }, [])
+  const beginPaneResize = useCallback((e: React.PointerEvent) => {
+    e.preventDefault()
+    const startX = e.clientX
+    const startW = leftPaneWidth
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    function onMove(ev: PointerEvent) {
+      const next = Math.max(
+        LEFT_PANE_MIN,
+        Math.min(LEFT_PANE_MAX, startW + (ev.clientX - startX)),
+      )
+      setLeftPaneWidth(next)
+    }
+    function onUp() {
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      // Persist final width
+      setLeftPaneWidth((w) => {
+        window.localStorage.setItem(LEFT_PANE_STORAGE_KEY, String(w))
+        return w
+      })
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }, [leftPaneWidth])
 
   // Distinct options derived from all tasks
   const filterOptions = useMemo(() => {
@@ -271,6 +333,51 @@ export default function TeamGantt({
         return cmp(a.clientName, b.clientName)
       })
   }, [visible, groupByProject])
+
+  // Optimistic client order for in-gantt drag-and-drop. Reset whenever the
+  // set of client IDs in `grouped` changes (e.g., after a server revalidation
+  // brings updated sort_order).
+  const [orderOverride, setOrderOverride] = useState<string[] | null>(null)
+  const groupedIds = useMemo(
+    () => grouped.map((g) => g.clientId),
+    [grouped],
+  )
+  useEffect(() => {
+    if (!orderOverride) return
+    const groupedSet = new Set(groupedIds)
+    const overrideSet = new Set(orderOverride)
+    const sameSet =
+      groupedSet.size === overrideSet.size &&
+      [...groupedSet].every((id) => overrideSet.has(id))
+    if (!sameSet) setOrderOverride(null)
+  }, [groupedIds, orderOverride])
+  const displayGrouped = useMemo(() => {
+    if (!orderOverride) return grouped
+    const idx = new Map(orderOverride.map((id, i) => [id, i]))
+    return [...grouped].sort(
+      (a, b) =>
+        (idx.get(a.clientId) ?? Number.MAX_SAFE_INTEGER) -
+        (idx.get(b.clientId) ?? Number.MAX_SAFE_INTEGER),
+    )
+  }, [grouped, orderOverride])
+
+  const sortableSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
+  function handleClientDragEnd(event: DragEndEvent) {
+    if (!onReorderClients) return
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const ids = displayGrouped.map((g) => g.clientId)
+    const oldIndex = ids.indexOf(active.id as string)
+    const newIndex = ids.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    const next = arrayMove(ids, oldIndex, newIndex)
+    setOrderOverride(next)
+    startTransition(() => {
+      void onReorderClients(next)
+    })
+  }
 
   // Heatmap: per-person, per-day task count
   const heatmap = useMemo(() => {
@@ -598,9 +705,20 @@ export default function TeamGantt({
           ref={rightScrollRef}
           className="relative max-h-[calc(100vh-180px)] overflow-auto"
         >
-        <div className="flex" style={{ minWidth: 420 + totalWidth }}>
+        <div className="flex" style={{ minWidth: leftPaneWidth + totalWidth }}>
           {/* Left panel */}
-          <div className="sticky left-0 z-20 w-[420px] flex-shrink-0 border-r border-slate-200 bg-white">
+          <div
+            className="sticky left-0 z-20 flex-shrink-0 border-r border-slate-200 bg-white"
+            style={{ width: leftPaneWidth }}
+          >
+            {/* Resize handle on the right edge */}
+            <div
+              onPointerDown={beginPaneResize}
+              className="absolute right-0 top-0 z-40 h-full w-1.5 cursor-col-resize select-none bg-transparent transition hover:bg-indigo-200"
+              title="Drag to resize"
+              aria-label="Resize task list pane"
+              role="separator"
+            />
             {/* Header */}
             <div
               className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50"
@@ -614,13 +732,29 @@ export default function TeamGantt({
               </div>
             </div>
 
-            {grouped.map((clientGroup) => (
-              <div key={clientGroup.clientId}>
+            <DndContext
+              sensors={sortableSensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleClientDragEnd}
+            >
+              <SortableContext
+                items={displayGrouped.map((g) => g.clientId)}
+                strategy={verticalListSortingStrategy}
+              >
+                {displayGrouped.map((clientGroup) => (
+                  <SortableClientBlock
+                    key={clientGroup.clientId}
+                    clientId={clientGroup.clientId}
+                    canReorder={Boolean(onReorderClients && groupByProject && clientGroup.clientName)}
+                  >
+                    {(dragHandle) => (
+                      <>
                 {groupByProject && clientGroup.clientName && (
                   <div
                     className="flex items-center gap-2 border-b border-slate-200 bg-slate-200 px-4 text-sm font-bold uppercase tracking-wide text-slate-800"
                     style={{ height: CLIENT_HEADER_HEIGHT }}
                   >
+                    {dragHandle}
                     {clientGroup.clientCode && (
                       <span className="rounded bg-white/70 px-1.5 py-0.5 text-xs font-mono text-slate-600">
                         {clientGroup.clientCode}
@@ -693,8 +827,12 @@ export default function TeamGantt({
                     ))}
                   </div>
                 ))}
-              </div>
-            ))}
+                      </>
+                    )}
+                  </SortableClientBlock>
+                ))}
+              </SortableContext>
+            </DndContext>
 
             {/* Heatmap left labels */}
             {heatmap && resourcePeople.length > 0 && (
@@ -767,7 +905,7 @@ export default function TeamGantt({
               </div>
 
               {/* Body */}
-              {grouped.map((clientGroup) => (
+              {displayGrouped.map((clientGroup) => (
                 <div key={clientGroup.clientId}>
                   {groupByProject && clientGroup.clientName && (
                     <div
@@ -935,6 +1073,59 @@ export default function TeamGantt({
         </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function SortableClientBlock({
+  clientId,
+  canReorder,
+  children,
+}: {
+  clientId: string
+  canReorder: boolean
+  children: (dragHandle: React.ReactNode) => React.ReactNode
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: clientId, disabled: !canReorder })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 30 : undefined,
+  }
+
+  const handle = canReorder ? (
+    <button
+      type="button"
+      aria-label="Drag client to reorder"
+      {...attributes}
+      {...listeners}
+      onClick={(e) => e.stopPropagation()}
+      className="-ml-1 mr-1 cursor-grab touch-none rounded p-0.5 text-slate-500 hover:bg-white/60 hover:text-slate-900 active:cursor-grabbing"
+    >
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <circle cx="4" cy="3" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="3" r="1.2" fill="currentColor" />
+        <circle cx="4" cy="7" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="7" r="1.2" fill="currentColor" />
+        <circle cx="4" cy="11" r="1.2" fill="currentColor" />
+        <circle cx="10" cy="11" r="1.2" fill="currentColor" />
+      </svg>
+    </button>
+  ) : null
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children(handle)}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateAggregates } from '@/lib/revalidate'
+import { reorderPeople } from '@/lib/actions/reorder'
 import { type Role } from '@/lib/types'
 import SortablePeopleTable from './sortable-people-table'
 
@@ -38,18 +39,6 @@ async function deletePersonAction(formData: FormData) {
   if (error) throw new Error(error.message)
   revalidatePath('/people')
   revalidateAggregates()
-}
-
-async function reorderPeopleAction(orderedIds: string[]) {
-  'use server'
-  const supabase = await createClient()
-  const { error } = await supabase.rpc('reorder_people', {
-    ordered_ids: orderedIds,
-  })
-  if (error) throw new Error(error.message)
-  revalidatePath('/people')
-  revalidatePath('/timeline')
-  revalidatePath('/resources')
 }
 
 export default async function PeoplePage() {
@@ -95,7 +84,7 @@ export default async function PeoplePage() {
         isAdminOrHigher={isAdminOrHigher}
         updateAction={updatePersonAction}
         deleteAction={deletePersonAction}
-        reorderAction={reorderPeopleAction}
+        reorderAction={reorderPeople}
       />
 
       <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

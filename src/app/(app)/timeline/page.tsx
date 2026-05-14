@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-
-export const dynamic = 'force-dynamic'
+import { reorderClients } from '@/lib/actions/reorder'
 import TeamGantt, {
   type GanttTaskRow,
   type GanttPerson,
 } from '@/app/_components/team-gantt'
+
+export const dynamic = 'force-dynamic'
 import { type Priority } from '@/lib/types'
 
 async function updateTaskDatesAction(
@@ -162,6 +163,7 @@ export default async function GlobalTimelinePage() {
         resourcePeople={resourcePeople}
         onTaskDateChange={updateTaskDatesAction}
         onToggleCompleted={toggleTaskCompletedAction}
+        onReorderClients={reorderClients}
       />
     </div>
   )
